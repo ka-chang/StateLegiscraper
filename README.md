@@ -1,5 +1,5 @@
-# leg-text-scrapper
-A webscrapper tool for state legislature floor meetings and committee hearings transcripts and video data.
+# leg-text-scraper
+A webscraping tool for state legislature floor meetings and committee hearings transcripts and video data.
 
 
 - Functional specification that motivates what is being built and describes the use cases.
