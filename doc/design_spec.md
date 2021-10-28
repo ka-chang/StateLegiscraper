@@ -3,9 +3,12 @@
 ## Description
 
 The goal of the project is to build a public facing webscrapper tool that makes text transcripts of state legislature committee 
-hearing and floor debates readily available to researchers and the public.  In particular, this project has two parts. First, 
-it’d entail building a tool to scrape all available text transcripts of committee hearing prepares its for text analytics. This 
-tool is to publicly available for users to gather raw data. Second, this project will build a dashboard of text analytics to indicate the power of this text corpora, with a focus on 
+hearing readily available to researchers and members of the public.  In particular, this project has two parts. 
+
+1. Build a tool to scrape all available text transcripts of committee hearing prepares its for text analytics. This 
+tool is to publicly available for users to gather raw data
+
+2. Build a dashboard of text analytics to indicate the power of this text corpora, with a focus on 
 sentiment analysis and topic modeling of specific committee hearings (that is, policy area across time) OR for specific sessions 
 (that is, what’s the most salient topic discussed during a legislative session). We’ll be using nltk, natural language tool kit 
 in Python so if you have previous experience or interest in it, this will be a great project for us to collaborate on.
@@ -26,6 +29,9 @@ across all 50 states, there is currently no open source option that scrapes tran
 
 The use case of this tool is to build and make accessible text corpora of political, social, and scholarly significance that can build greater public transparency about public policymaking and state-level politics. Researchers would be interested in this tool to gather raw data, while journalists and members of the public can engage with the dashboard to capture high-level trends in the political discourse at the state legislature.
 
+- *Researchers*:
+
+- *Members of the Public*:
 ## Components
 
 ## Interactions
