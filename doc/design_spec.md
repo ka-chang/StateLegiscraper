@@ -29,7 +29,7 @@ across all 50 states, there is currently no open source option that scrapes tran
 
 The use case of this tool is to build and make accessible text corpora of political, social, and scholarly significance that can build greater public transparency about public policymaking and state-level politics. Researchers would be interested in this tool to gather raw data, while journalists and members of the public can engage with the dashboard to capture high-level trends in the political discourse at the state legislature.
 
-- *Researchers*:
+- *Researchers*:Researcher are the people who analyze the raw transcripts data of committee videos to induce some useful information. The scrapper should allow researchers to input the particular module’ website address that they want to search in the two legislature websites. And it should provide basic data analyzing and cleaning function, such as unifying the format of data, labeling the different part of the transcript and so on.
 
 - *Members of the Public*:
 ## Components
