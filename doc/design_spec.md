@@ -6,7 +6,7 @@ The goal of the project is to build a public facing webscrapper tool that makes 
 hearing readily available to researchers and members of the public.  In particular, this project has two parts. 
 
 1. Build a tool to scrape all available text transcripts of committee hearing and prepares its for text analytics. This 
-tool is to publicly available for users to gather raw data.
+tool is to publicly available for users to gather raw data. If text transcripts are not available, as often the case for state legislature websites, we scrape the available audio and convert it to text using [DeepSpeech](https://deepspeech.readthedocs.io/en/r0.9/).
 
 2. Build a dashboard of text analytics to indicate the power of this text corpora, with a focus on 
 sentiment analysis and topic modeling of specific committee hearings (that is, policy area across time) OR for specific sessions 
