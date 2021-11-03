@@ -33,6 +33,7 @@ The use case of this tool is to build and make accessible text corpora of politi
 
 - *Members of the Public*: Members of the public want to directly capture high-level political information from the dashboard. The dashboard needs to provide well-processed data and analysis from the two state legislature websites. There would be two buttons for Washington state and Nevada state that journalists can select from. Under each state, there would be several concerning topics (eg. COVID-19, Long-term Care Act etc.) and if journalists are interested in one of them, he/she can enter to see the analysis(visualizations) about this topic.
 
+![alt text](https://github.com/ka-chang/leg-text-scraper/blob/main/doc/Flow%20chart.PNG)
 ## Components
 
 ## Interactions
