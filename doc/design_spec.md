@@ -12,7 +12,7 @@ tool is to publicly available for users to gather raw data. If text transcripts 
 word frequency, sentiment analysis, and topic modeling of specific committee hearings (that is, policy area across time) and/or for specific sessions 
 (that is, what’s the most salient topic discussed during a legislative session). We utilize [nltk](http://ntlk.org), Natural Language Tool Kit, for analysis.
 
-## Motivation
+## Background
 
 As many members of public may have seen on the news, recent media attention has focused on state legislative politics and a 
 number of controversial bills and policy proposals that have emerged in the past few years. But beyond recent news, public 
@@ -23,7 +23,7 @@ However, unlike the U.S. Congress, the 50 state legislatures have vastly differe
 Therefore, a systemic examination of national trends at the state-level is difficult to execute due to challenges in navigating and 
 accessing data. While projects such as [Civic Eagle](https://www.civiceagle.com) and [Open States](https://openstates.org) have APIs that provide data for bills and representatives across all 50 states, there is currently no open source option that scrapes transcripts of committee hearings for research purposes and public review.
 
-## Use Cases
+## User Profile and Use Cases
 
 The use case of this tool is to build and make accessible text corpora of political, social, and scholarly significance that can build greater public transparency about public policymaking and state-level politics. Researchers would be interested in this tool to gather raw data for nuanced, tailored analysis, while journalists and members of the public can engage with our text analysis dashboard to capture high-level trends in the political discourse at the state legislature.
 
@@ -34,15 +34,23 @@ The use case of this tool is to build and make accessible text corpora of politi
 ## Components
 ![alt text](https://github.com/ka-chang/leg-text-scraper/blob/main/doc/Flow%20chart.PNG)
 
+**1. State, Chamber, Committee, and Year** 
+*Inputs*: Radio buttons for users to select state of interest (of those available, currently Washington and Nevada), chamber (state-specific equivalent of House and Senate), Committee (complete list), and Year (organized by legislative session and limited by those available on the website).
+*Outputs*: JSON file of text transcripts, either generated from PDF or speech-to-text from audio to text
+
+**2. Topic Selection**
+*Inputs*:  Drop down menu for users to select a team-determined topic of choice and state of interest. For Fall 2021, the dashboard will focus on COVID-19 and state data for Nevada.
+*Outputs*: A dashboard of text analytics on the topic selected for the state. Analysis categories include: word frequency and counts, sentiment analysis, IDF, and unsupervised topic model categories.
+
 ## Interactions
 
 ## Project Plan
 
 | Class Dates 	| Deliverable/Milestone 	| Project Task 	| WA Task 	| NV Task 	|
 |---	|---	|---	|---	|---	|
-| Nov 2/4 	| Software Design (Nov 2) 	| - Start scraping code for WA/NV<br>- Complete design_spec.md 	| - Play with WA toy audio files <br>- Implement with DeepSpeech<br>- Generate one transcript with DeepSpeech<br>- Generate one transcript with Google API 	| - Play with NV pdf files<br>- Convert PDF to json<br><br>- Conduct a word count of toy files 	|
-| Nov 9/11 	|  	| - Speak to Anant about file management<br>- Prepare technology review slide deck<br>- Write unit tests for web scrapping WA/NV 	| - Scrape audio files for one session<br>- Generate transcripts for one session 	| - Scrape all pdfs, convert PDF to json<br><br>- Conduct sentiment analysis<br> 	|
+| Nov 2/4 	| Software Design (Nov 2) 	| - Start scraping code for WA/NV<br>- Complete design_spec.md 	| - Play with WA toy audio files <br>- Implement with DeepSpeech<br>- Generate one transcript with DeepSpeech<br>- Generate one transcript with Google API 	| - Play with NV pdf files<br>- Convert PDF to json<<br>- Conduct a word count of toy files 	|
+| Nov 9/11 	|  	| - Speak to Anant about file management<br>- Prepare technology review slide deck<br>- Write unit tests for web scrapping WA/NV 	| - Scrape audio files for one session<br>- Generate transcripts for one session 	| - Scrape all pdfs, convert PDF to json<br>- Conduct sentiment analysis<br> 	|
 | Nov 16/18 	| Technology Review (Nov 16) 	|  	| - Scrape audio files for all sessions<br>- Generate transcripts for all sessions 	| - Conduct unsupervised topic modeling 	|
 | Nov 23/25 	|  	| - Build front end for data collection (NV/WA)<br>-  	| - Build simple dashboard of word count 	| - Build dashboard 	|
-| Nov 30/Dec 2 	|  	| -Sync up WA and NV efforts 	| - Sync up WA and NV efforts 	| - Dashboard running for team to review<br>- Sync up WA and NV efforts 	|
+| Nov 30/Dec 2 	|  	| -Sync up WA and NV efforts 	| - Sync up WA data with NV dashboard code 	| - Dashboard running for team to review 	|
 | Dec 7/Dec 9 	| Project Previews  	|  	|  	|  	|
