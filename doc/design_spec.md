@@ -34,15 +34,18 @@ The use case of this tool is to build and make accessible text corpora of politi
 ## Components
 ![alt text](https://github.com/ka-chang/leg-text-scraper/blob/main/doc/Flow%20chart.PNG)
 
-**Component 1. State, Chamber, Committee, and Year** 
+**Component 1. State, Chamber, Committee, and Date (Audio)** 
 
-- *Inputs*: Radio buttons for users to select state of interest (of those available, currently Washington and Nevada), chamber (state-specific equivalent of House and Senate), Committee (complete list), and Year (organized by legislative session and limited by those available on the website).
-- *Outputs*: JSON file of text transcripts, either generated from PDF or speech-to-text from audio to text
+- *Inputs*: Radio buttons for users to select state of interest (of those available, currently Washington), chamber (state-specific equivalent of House and Senate), Committee (complete list), and Date (organized by legislative session year and limited by those available on the website).
+- *Outputs*: User can choose to download the raw audio files for the entire legislative session, or a single JSON file generated from speech-to-text function
 
-**Component 2. Topic Selection**
+**Component 2. State, Chamber, Committee, and Date (PDF)** 
+- *Inputs*: Radio buttons for users to select state of interest (of those available, currently Nevada), chamber (state-specific equivalent of House and Senate), Committee (complete list), and Date (organized by legislative session year and limited by those available on the website).
+- *Outputs*: User can choose to download the raw PDF files for the entire legislative session, or a single JSON file generated from PDF to text function
 
-- *Inputs*:  Drop down menu for users to select a team-determined topic of choice and state of interest. For Fall 2021, the dashboard will focus on COVID-19 and state data for Nevada.
-- *Outputs*: A dashboard of text analytics on the topic selected for the state. Analysis categories include: word frequency and counts, sentiment analysis, IDF, and unsupervised topic model categories.
+**Component 3. Text Analytics Topic Selection**
+- *Inputs*:  Drop down menu for users to select a team-determined topic of choice and state of interest. For Fall 2021, the dashboard will focus on COVID-19 and Nevada state data.
+- *Outputs*: An updated dashboard of text analytics visualizations on the topic selected for the state. Analysis categories include: word frequency and counts, sentiment analysis, IDF, and unsupervised topic model categories.
 
 ## Interactions
 
