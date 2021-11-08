@@ -8,28 +8,14 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 #from webdriver_manager.chrome import ChromeDriverManager
 
-ed_links=[
-    "https://www.leg.state.nv.us/App/NELIS/REL/81st2021/Committee/342/Meetings",
-    "https://www.leg.state.nv.us/App/NELIS/REL/81st2021/Committee/348/Meetings",
-    "https://www.leg.state.nv.us/App/NELIS/REL/80th2019/Committee/228/Meetings",
-    "https://www.leg.state.nv.us/App/NELIS/REL/80th2019/Committee/216/Meetings",
-    "https://www.leg.state.nv.us/App/NELIS/REL/79th2017/Committee/168/Meetings",
-    "https://www.leg.state.nv.us/App/NELIS/REL/79th2017/Committee/185/Meetings",
-    "https://www.leg.state.nv.us/App/NELIS/REL/78th2015/Committee/50/Meetings",
-    "https://www.leg.state.nv.us/App/NELIS/REL/78th2015/Committee/66/Meetings",
-    "https://www.leg.state.nv.us/App/NELIS/REL/77th2013/Committee/2/Meetings",
-    "https://www.leg.state.nv.us/App/NELIS/REL/77th2013/Committee/13/Meetings",
-    "https://www.leg.state.nv.us/App/NELIS/REL/76th2011/Committee/25/Meetings",
-    "https://www.leg.state.nv.us/App/NELIS/REL/76th2011/Committee/36/Meetings"
-]
-
 def nv_scrape(webscrape_links, dir_chrome_webdriver, dir_save_folder):
 
     """ 
     Webscrape function for Nevada State Legislature Website 
-    webscrape_links: Select one committee/policy area of interest, use ed_links right now to test
-    dir_chrome_webdriver: Local directory that has Chrome Webdriver
-    dir_save_folder: Local directory to save pdfs (need to figure out file management)
+    - webscrape_links: [List] of direct link(s) to NV committee webpage, 
+        see nv_weblinks.py for lists organized by chamber and committee 
+    - dir_chrome_webdriver: [String] Local directory that has Chrome Webdriver
+    - dir_save_folder: [String] Local directory to save pdfs (need to figure out file management)
     
     """
     for link_index in range(len(webscrape_links)):
@@ -44,10 +30,7 @@ def nv_scrape(webscrape_links, dir_chrome_webdriver, dir_save_folder):
     
         arrow02 = driver.find_element_by_id('divMeetings')
         arrow02.click()
-    
-        #arrow03 = driver.find_element_by_id('committee-meetings-tab')
-        #arrow03.click()
-    
+
         url = driver.page_source
         REGEX_PATTERN = r'https.*Minutes.*\.pdf'
         lines = url.split()
@@ -72,17 +55,15 @@ def nv_scrape(webscrape_links, dir_chrome_webdriver, dir_save_folder):
         driver.close()
         
 
-"""
-UNIT TEST
+""" UNIT TEST
 
-K NOTES: 
+K NOTES (11/8): 
     Need to check Chrome version and download the right Chromedriver. 
     Need to print chrome version and direct people to find the right driver
     https://chromedriver.chromium.org/downloads
-    I'm running 95
+    I'm running Chrome Version 95 
     
-    
-    Runs and works, I'm gettting depreciation warnings. Look into updating the functions 
+    Func runs and works, I'm gettting depreciation warnings. Look into updating the functions 
     
     v_scrape(ed_test, chrome_webdriver, save_folder)
 /var/folders/vp/kyx63ql12dggnl_3zsdqpsh80000gn/T/ipykernel_4733/575717094.py:11: 
@@ -103,4 +84,4 @@ save_folder="/Volumes/GoogleDrive/My Drive/2021/Fall 2021/CSE583/project/toy"
 
 nv_scrape(ed_test, chrome_webdriver, save_folder)
 
-#TEST WITH ED_LINKS LIST 
+#Next steps: Import nv_weblinks.py and test with one of the available lists
