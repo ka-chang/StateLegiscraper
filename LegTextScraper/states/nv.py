@@ -68,7 +68,7 @@ def nv_scrape(webscrape_links, dir_chrome_webdriver, dir_save):
         
         driver.close()
         
-def nv_pdftotext(dir_load, nv_json_name:
+def nv_pdftotext(dir_load, nv_json_name):
     """
     Convert all PDFs to a dictionary and then saved locally as a JSON file.
     
