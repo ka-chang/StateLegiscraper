@@ -134,7 +134,7 @@ def nv_extract_date(nv_json_path):
         month = date.month
         new_json_file[month].append(temp)
         
-     return new_json_file
+    return(new_json_file)
 
 def nv_preprocess(nv_json_path, trim=None):    
     """
@@ -160,28 +160,53 @@ def nv_preprocess(nv_json_path, trim=None):
     
     if trim:
         for key in data:
-            ##Removes list of attendees on front end
-            start_location = re.search(r"(CHAIR.*[A-z]\:|Chair.*[A-z]\:)", data[key]).start() #Chair speaks first
-            data[key] = data[key][start_location:] #Starts transcript from when Chair first speaks
-            ##Removes signature page after submission (RESPECTFULLY SUBMITTED)
-            end_location = re.search(r"(Respectfully\sSUBMITTED\:|RESPECTFULLY\sSUBMITTED\:)", data[key]).start() #Signature page starts with
-            data[key] = data[key][:end_location] #End transcript just before respectfully submitted            
-            ##PDF formatting
-            data[key] = re.sub(r"Page\s[0-9]{1,}", "", data[key]) #Removes page number
-            data[key] = re.sub(r"\n", "", data[key])
-            data[key] = data[key].strip()
-            data[key]=" ".join(data[key].split())
+            if isinstance(data[key], str):
+                ##Removes list of attendees on front end
+                start_location = re.search(r"(CHAIR.*[A-z]\:|Chair.*[A-z]\:)", data[key]).start() #Chair speaks first
+                data[key] = data[key][start_location:] #Starts transcript from when Chair first speaks
+                ##Removes signature page after submission (RESPECTFULLY SUBMITTED)
+                end_location = re.search(r"(Respectfully\sSUBMITTED\:|RESPECTFULLY\sSUBMITTED\:)", data[key]).start() #Signature page starts with
+                data[key] = data[key][:end_location] #End transcript just before respectfully submitted            
+                ##PDF formatting
+                data[key] = re.sub(r"Page\s[0-9]{1,}", "", data[key]) #Removes page number
+                data[key] = re.sub(r"\n", "", data[key])
+                data[key] = data[key].strip()
+                data[key]=" ".join(data[key].split())
+            elif isinstance(data[key], list):
+                for i in range(len(data[key])):
+                    start_location = re.search(r"(CHAIR.*[A-z]\:|Chair.*[A-z]\:)", data[key][i]).start() #Chair speaks first
+                    data[key][i] = data[key][i][start_location:] #Starts transcript from when Chair first speaks
+                    ##Removes signature page after submission (RESPECTFULLY SUBMITTED)
+                    end_location = re.search(r"(Respectfully\sSUBMITTED\:|RESPECTFULLY\sSUBMITTED\:)", data[key][i]).start() #Signature page starts with
+                    data[key][i] = data[key][i][:end_location] #End transcript just before respectfully submitted            
+                    ##PDF formatting
+                    data[key][i] = re.sub(r"Page\s[0-9]{1,}", "", data[key][i]) #Removes page number
+                    data[key][i] = re.sub(r"\n", "", data[key][i])
+                    data[key][i] = data[key][i].strip()
+                    data[key][i]=" ".join(data[key][i].split())
+            else:
+                print("Incompatible File")
 
         return(data)
             
     else:
         for key in data:
-            ##PDF formatting cleanup
-            data[key] = re.sub(r"Page\s[0-9]{1,}", "", data[key]) #Removes page number
-            data[key] = re.sub(r"\n", "", data[key])
-            data[key] = data[key].strip()
-            data[key]=" ".join(data[key].split())
- 
+            if isinstance(data[key], str):          
+                ##PDF formatting
+                data[key] = re.sub(r"Page\s[0-9]{1,}", "", data[key]) #Removes page number
+                data[key] = re.sub(r"\n", "", data[key])
+                data[key] = data[key].strip()
+                data[key]=" ".join(data[key].split())
+            elif isinstance(data[key], list):
+                for i in range(len(data[key])):      
+                    ##PDF formatting
+                    data[key][i] = re.sub(r"Page\s[0-9]{1,}", "", data[key][i]) #Removes page number
+                    data[key][i] = re.sub(r"\n", "", data[key][i])
+                    data[key][i] = data[key][i].strip()
+                    data[key][i]=" ".join(data[key][i].split())
+            else:
+                print("Incompatible File")
+
         return(data)
             
 """
