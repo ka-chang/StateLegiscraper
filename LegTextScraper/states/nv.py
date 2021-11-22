@@ -165,7 +165,7 @@ def nv_preprocess(nv_json_path, trim=None):
                 start_location = re.search(r"(CHAIR.*[A-z]\:|Chair.*[A-z]\:)", data[key]).start() #Chair speaks first
                 data[key] = data[key][start_location:] #Starts transcript from when Chair first speaks
                 ##Removes signature page after submission (RESPECTFULLY SUBMITTED)
-                end_location = re.search(r"(Respectfully\sSUBMITTED\:|RESPECTFULLY\sSUBMITTED\:)", data[key]).start() #Signature page starts with
+                end_location = re.search(r"(Respectfully\sSUBMITTED\:|RESPECTFULLY\sSUBMITTED\:|RESPECTFULLY\sSUBMITTED)", data[key]).start() #Signature page starts with
                 data[key] = data[key][:end_location] #End transcript just before respectfully submitted            
                 ##PDF formatting
                 data[key] = re.sub(r"Page\s[0-9]{1,}", "", data[key]) #Removes page number
@@ -177,7 +177,7 @@ def nv_preprocess(nv_json_path, trim=None):
                     start_location = re.search(r"(CHAIR.*[A-z]\:|Chair.*[A-z]\:)", data[key][i]).start() #Chair speaks first
                     data[key][i] = data[key][i][start_location:] #Starts transcript from when Chair first speaks
                     ##Removes signature page after submission (RESPECTFULLY SUBMITTED)
-                    end_location = re.search(r"(Respectfully\sSUBMITTED\:|RESPECTFULLY\sSUBMITTED\:)", data[key][i]).start() #Signature page starts with
+                    end_location = re.search(r"(Respectfully\sSUBMITTED\:|RESPECTFULLY\sSUBMITTED\:|RESPECTFULLY\sSUBMITTED)", data[key][i]).start() #Signature page starts with
                     data[key][i] = data[key][i][:end_location] #End transcript just before respectfully submitted            
                     ##PDF formatting
                     data[key][i] = re.sub(r"Page\s[0-9]{1,}", "", data[key][i]) #Removes page number
