@@ -37,7 +37,11 @@ def nv_scrape(webscrape_links, dir_chrome_webdriver, dir_save):
     """
     
     for link_index in range(len(webscrape_links)):
-        driver=webdriver.Chrome(dir_chrome_webdriver)
+        
+        service = Service(dir_chrome_webdriver)
+        options = webdriver.ChromeOptions()
+        driver = webdriver.Chrome(service=service, options=options)
+
         time.sleep(5)
         driver.get(webscrape_links[link_index]) 
         time.sleep(5)
