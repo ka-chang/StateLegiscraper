@@ -6,8 +6,166 @@ import re
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.support.ui import Select
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.keys import Keys
 
-    """
+
+"""
+-------
+WA Work Flow
+-------
+
+CLASS wa_scrape
+
+1. wa_scrape_meeting_links by desired committee and legislative session. 
+Function will search TVW archives for links to each individual committee meeting for that leg session
+
+2. wa_scrape_audio with wa_meeting_links input
+Function will visit each link individually and gather weblinks for each meeting hearing audio by mp3 link on page
+
+3. wa_scrape_download_audio with wa_scrape_audio function
+Function will give the user option to download all mp3 locally
+Pulls input by wa_scrape_audio for the weblinks by desired committee and leg session
+Rename the file names by committee name and date (YYYYMMDD) (e.g. wa_education_20200305.mp3)
+
+CLASS speech_to_text
+
+4. wa_speech_to_text
+Function will give the user option to convert audio file to a text transcript through DeepSpeech
+Uses mp3 links directly to process the transcripts
+Downloads the transcript in json form, single json for each committee/legislative session
+
+5. wa_preprocess_transcript
+Function will conduct tests and run light cleaning to ensure transcript is ready for nltk text analysis
+
+"""
+
+def wa_meeting_links():
+
+  """
+  """
+  
+# DRIVE SETUP
+service = Service("/Users/katherinechang/Google Drive/My Drive/2021/Fall 2021/CSE583/project/chromedriver")
+options = webdriver.ChromeOptions()
+driver = webdriver.Chrome(service=service, options=options)
+
+# OPEN TO TVW ARCHIVES 
+driver.get("https://www.tvw.org/archives/")
+
+# ENTER SPECIFIC COMMITTEE NAME AND PRESS ENTER 
+
+input_search = driver.find_element(By.ID, "invintus-archives-search")
+input_search.send_keys("House Education Committee")
+input_search.send_keys(Keys.RETURN)
+
+# SELECT CATEGORY LEGISLATIVE
+
+driver.find_element(By.CLASS_NAME, "selectric-invintus-archives-filter-category").click()
+#driver.find_element(By.CLASS_NAME, "selectric-hide-select").click()
+
+dropdown_category=driver.find_element(By.CLASS_NAME, "invintus-archives-filter-category")
+
+dropdown_category_select=Select(dropdown_category)
+
+dropdown_category_select.select_by_index(2).click()
+
+
+#####
+
+
+options = driver.find_elements(By.TAG_NAME, "option")
+
+for each_option in options:
+    #print(each_option)
+    print(each_option.get_attribute("value"))
+    
+
+for each_option in options:
+    if (each_option.get_attribute("value")=="Agencies and Boards"):
+        y=each_option
+        break
+
+
+# SELECT START DATE BY LEGISLATIVE SESSION
+select_date_start = driver.find_element(By.CLASS_NAME, "invintus-archives-filter-start-date")
+select_date_start.click()
+
+
+for option in selectMonth.find_elements_by_tag_name('option'):
+    if option.text == 'Mar':
+        option.click() 
+        break
+
+
+for option in selectYear.find_elements_by_tag_name('option'):
+    if option.text == '2017':
+        option.click() 
+        break 
+
+days = driver.find_elements_by_xpath('//a[@class="ui-state-default"]')
+days[4].click()
+
+
+# SELECT END DATE BY LEGISLATIVE SESSION
+select_date_end = driver.find_element(By.CLASS_NAME, "invintus-archives-filter-end-date")
+select_date_end.click()
+
+# INPUT COMMITTEE MEETING
+
+
+
+
+
+# SAVE LINKS FOR MULTIPLE PAGES
+
+url = driver.page_source
+
+# FOR EACH PAGE SEARCH FOR A HREF TAG TO CREATE A LIST OF WEBLINKS
+
+match = re.search(r'href=[\'"]?([^\'" >]+)', lines)
+
+
+
+for i in lines:
+    hit = meeting_regex.findall(l)
+
+
+REGEX_PATTERN = r".*(\?eventID\=).*"
+lines = url.split()
+meeting_regex = re.compile(REGEX_PATTERN)
+all_files = []
+
+for l in lines:
+    hit = meeting_regex.findall(l)
+    if hit:
+        print(hit)
+        #all_files.extend(hit)
+        
+for filename in all_files:
+    print(filename)
+
+
+
+<a href="/watch/?eventID=2021111051">
+
+
+
+# GO THROUGH EACH PAGE AND GATHER THE LINKS TO EACH MEETING
+
+
+
+
+
+
+driver.close()
+
+
+def wa_scrape_audio():
+
+  """
     Webscrape function for Washington State Legislature Website for 2016-2020 sessions 
     
     Parameters
@@ -57,11 +215,6 @@ for filename in mp3_files:
     print(filename)
     
 driver.close()
-
-
-audio_file_path = str(Path(os.getcwd())) #Sets to local Github directory path
-
-sys.path.insert(1, audio_file_path) 
 
 
 
