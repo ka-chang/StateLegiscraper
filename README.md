@@ -42,7 +42,7 @@ The ambition of LegTextScraper is to one day cover and maintain all 50 state leg
 If you would like to report a bug or issue , please submit a detailed report at [this link](https://github.com/ka-chang/LegTextScraper/issues/new).
  
 ## Contributions
-If you'd like to expand LegTextScraper to other states, use the data to add to our dashboard options, or add additional features to the tool, please fork the repository, add your contribution, and generate a pull request. The complete contributing guide can be found at this [link](https://github.com/ka-chang/LegTextScraper/blob/main/doc/CONTRIBUTING.md).
+If you'd like to expand LegTextScraper to other states, use the data to add to our dashboard options, or add additional features to the tool, please fork the repository, add your contribution, and generate a pull request. The complete contributing guide can be found at this [link](https://github.com/ka-chang/LegTextScraper/blob/main/doc/CONTRIBUTING.md). This project operates under the [Contributor Code of Conduct](https://www.contributor-covenant.org/version/1/0/0/code-of-conduct/).
 
 ## Acknowledgements
 Many thanks to Dr. David Beck and Anant Mittal from the University of Washington for their support, guidance, and feedback in the development of this package.
