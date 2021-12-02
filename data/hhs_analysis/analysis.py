@@ -34,14 +34,14 @@ github_file_path = str(Path(os.getcwd()).parents[1]) # Sets to local Github dire
 sys.path.insert(1, github_file_path)
 
 from LegTextScraper.states.nv import NVProcess
+from LegTextScraper.dashboard_helper import NVHelper
 
 cleaned_data = NVProcess.nv_text_clean("nv_hhs_2021_raw.json", trim=True)
 with open("cleaned_data.json", 'w') as f: 
     json.dump(cleaned_data, f, ensure_ascii=False)
 
-data_by_date = NVProcess.nv_extract_date("cleaned_data.json")
-data_by_month = NVProcess.nv_extract_month("cleaned_data.json")
-
+data_by_date = NVHelper.nv_extract_date("cleaned_data.json")
+data_by_month = NVHelper.nv_extract_month("cleaned_data.json")
 ### Data Cleaning
 raw = {}
 for i in data_by_month.keys():
