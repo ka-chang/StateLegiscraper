@@ -14,7 +14,32 @@ However, unlike the U.S. Congress, the 50 state legislatures have vastly differe
 
 ## Requirements
 
+LegTextScraper uses Selenium and DeepSpeech to conduct webscraping and to generate speech-to-text transcripts, where needed. 
+
+- Python = 3.7
+- Google Chrome  
+- [Chrome Driver](https://chromedriver.chromium.org/downloads)
+
+To check your installed Chrome version and to download the appropriate Chrome Driver, follow these instructions:
+1. Open Chrome
+2. At the top right corner of the browser, click the settings tab (three vertical dots ⋮)
+3. Navigate down to Help > About Google Chrome
+4. Your Google Chrome version is listed on the top of the page
+
+![image](https://user-images.githubusercontent.com/56325380/144416351-307d8a73-146e-40bb-8160-493df5ac08ea.png)
+
+5. Find the [Chrome Driver](https://chromedriver.chromium.org/downloads) that corresponds to your version and save it to your local drive
+
 ## Installation
+
+LegTextScraper is installed using the command line and is best used with a virtual environment due to its dependencies.
+
+1. Open your choice of terminal (e.g., Terminal (MacOS) or [Ubuntu 20.04 LTS](https://www.microsoft.com/en-us/p/ubuntu-2004-lts/9n6svws3rx71?activetab=pivot:overviewtab) (Windows))
+2. Clone the repoistory using `git clone https://github.com/ka-chang/LegTextScraper.git`
+3. Change to the LegTextScraper repository using `cd LegTextScraper`
+4. Set up a new virtual environment using `conda create –n legtextscraper python=3.7`
+5. Activate the legtextscraper virtual environment with `conda activate legtextscraper`
+6. Install package requirements using `pip3 install –r requirements.txt`
 
 ## Usage
 
