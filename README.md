@@ -56,6 +56,8 @@ LegTextScraper also includes a series of public-facing dashboards using the scra
 
 - COVID-19 Narrative Trends in Nevada's Health and Human Services Committee (2020) 
 
+To run the dashboard, ensure you have cloned the LegTextScraper repository and are located in the root directory. Type in `python app.py` in your terminal and the dashboards will open in a separate browser.
+
 ## Use Cases
 
 Researchers can gather raw data for nuanced, tailored analysis, while journalists and members of the public can engage with our text analysis dashboards to capture high-level trends in the political discourse at the state legislature.
