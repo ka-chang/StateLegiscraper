@@ -26,7 +26,7 @@ To check your installed Chrome version and to download the appropriate Chrome Dr
 3. Navigate down to Help > About Google Chrome
 4. Your Google Chrome version is listed on the top of the page
 
-<img src="https://user-images.githubusercontent.com/56325380/144416351-307d8a73-146e-40bb-8160-493df5ac08ea.png">
+<img src="doc/readme_chrome.png">
 
 5. Find the [Chrome Driver](https://chromedriver.chromium.org/downloads) that corresponds to your version and save it to your local drive
 
