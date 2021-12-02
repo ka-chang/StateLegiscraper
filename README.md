@@ -24,7 +24,7 @@ To check your installed Chrome version and to download the appropriate Chrome Dr
 1. Open Google Chrome
 2. At the top right corner of the browser, click the settings tab (three vertical dots ⋮)
 3. Navigate down to Help > About Google Chrome
-4. Your Google Chrome version is listed on the top of the page
+4. Your Google Chrome version is listed on the top of the page. For example:
 
 <img src="doc/readme_chrome.png">
 
