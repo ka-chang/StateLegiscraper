@@ -10,11 +10,11 @@ The mission of LegTextScraper is to build and make accessible text corpora of po
 
 In recent years, a number of controversial bills and policy proposals have emerged in state legislatures and media attention has increasingly focus on state legislative politics. But beyond recent news, public oversight of the policymaking process is an important cornerstone of democratic nations. As the current U.S. political climate has increasingly shifted national politics to the state-level, state legislatures are key policy venues to watch.
 
-However, unlike the U.S. Congress, the 50 state legislatures have vastly different websites and public documentation protocols. Therefore, a systemic examination of national trends at the state-level is difficult to execute due to challenges in navigating, accessing, and processing relevant data. While projects such as [Civic Eagle](https://www.civiceagle.com/) and [Open States](https://openstates.org/) have APIs that provide data for bills and representatives across all 50 states, there is currently no open source option that scrapes and processes committee hearing written and spoken transcripts for research purposes and public review. 
+However, unlike the U.S. Congress, the 50 state legislatures have vastly different websites and public documentation protocols. Therefore, a systemic examination of national trends at the state-level is difficult to execute due to challenges in navigating, accessing, and processing relevant data. While projects such as [LegiScan](https://legiscan.com), [Civic Eagle](https://www.civiceagle.com/), and [Open States](https://openstates.org/) have APIs that provide data about bills and representatives across all 50 states, there is currently no open source option that scrapes and processes written and spoken transcripts of state legislature commitee hearings and floor speeches for research purposes and public review. 
 
 ## Requirements
 
-LegTextScraper primarily uses a Python-based web browser automation tool, [Selenium](https://www.selenium.dev), to conduct webscraping. This requires a specific browser and browser driver to work properly.
+LegTextScraper primarily uses a Python-based web browser automation tool, [Selenium](https://www.selenium.dev), to conduct webscraping. This requires a specific browser and browser driver to work properly. The package is built using Google Chrome.
 
 - Python = 3.7
 - [Google Chrome](https://www.google.com/chrome/)  
