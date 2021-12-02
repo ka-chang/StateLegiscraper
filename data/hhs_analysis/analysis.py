@@ -11,7 +11,9 @@ import os
 from pathlib import Path
 import sys
 from string import punctuation
-
+import re
+import math
+import datetime
 
 import nltk
 # nltk.download()
@@ -23,21 +25,32 @@ from nltk.probability import FreqDist
 import matplotlib.pyplot as plt
 from textblob import TextBlob
 from wordcloud import WordCloud, STOPWORDS
+from sentence_transformers import SentenceTransformer, util
+import torch
+from collections import defaultdict
 
-from LegTextScraper.states.nv import nv_preprocess
 
 github_file_path = str(Path(os.getcwd()).parents[1]) # Sets to local Github directory path
-sys.path.insert(1, github_file_path) 
-data = nv_preprocess("nv_fin_new.json", trim=True) # Input file
+sys.path.insert(1, github_file_path)
+
+from LegTextScraper.states.nv import NVProcess
+from LegTextScraper.dashboard_helper import NVHelper
+
+cleaned_data = NVProcess.nv_text_clean("nv_hhs_2021_raw.json", trim=True)
+with open("cleaned_data.json", 'w') as f: 
+    json.dump(cleaned_data, f, ensure_ascii=False)
+
+data_by_date = NVHelper.nv_extract_date("cleaned_data.json")
+data_by_month = NVHelper.nv_extract_month("cleaned_data.json")
 
 ### Data Cleaning
 raw = {}
-for i in data.keys():
-    raw[i] = json.dumps(data[i]) # convert json to string
+for i in data_by_month.keys():
+    raw[i] = json.dumps(data_by_month[i]) # convert json to string
 
 text = {}
 for i in raw.keys():
-    text[i]= [word.lower() for word in word_tokenize(raw[i])
+    text[i]= [word.lower() for word in word_tokenize(raw[i])]
 
 stopwords_en = set(stopwords.words('english')) # set checking is faster than list
 
@@ -52,11 +65,6 @@ for i in text_no_stopwords.keys():
 
 wnl = WordNetLemmatizer()
 
-text_no_stopwords_punc_lb = {} # without line breaks
-for i in text_no_stopwords_punc.keys():
-    text_no_stopwords_punc_lb[i] = [word for word in text_no_stopwords_punc[i] if not word.startswith('\\n')]+ [word[2:] 
-                                for word in text_no_stopwords_punc if  word.startswith('\\n')]
-
 def penn2morphy(penntag):
     """ Converts Penn Treebank tags to WordNet. """
     morphy_tag = {'NN':'n', 'JJ':'a',
@@ -70,18 +78,18 @@ def lemmatize_sent(text):
     return [wnl.lemmatize(word.lower(), pos=penn2morphy(tag)) 
             for word, tag in pos_tag(text)]
 
-text_no_stopwords_punc_lb_lemma = {} # after lemmatization
-for i in text_no_stopwords_punc_lb.keys():
-    text_no_stopwords_punc_lb_lemma[i]=lemmatize_sent(text_no_stopwords_punc_lb[i])
+text_no_stopwords_punc_lemma = {} # after lemmatization
+for i in text_no_stopwords_punc.keys():
+    text_no_stopwords_punc_lemma[i]=lemmatize_sent(text_no_stopwords_punc[i])
 
-text_no_stopwords_punc_lb_lemma_md = {}
-for i in text_no_stopwords_punc_lb_lemma.keys():
-    text_no_stopwords_punc_lb_lemma_md[i]=[word for word in text_no_stopwords_punc_lb_lemma[i] if nltk.pos_tag([word])[0][1] != 'MD']
+text_no_stopwords_punc_lemma_md = {}
+for i in text_no_stopwords_punc_lemma.keys():
+    text_no_stopwords_punc_lemma_md[i]=[word for word in text_no_stopwords_punc_lemma[i] if nltk.pos_tag([word])[0][1] != 'MD']
 
 ### Word Counting
 textdist = {}
-for i in text_no_stopwords_punc_lb_lemma_md.keys():
-    textdist[i] = FreqDist(text_no_stopwords_punc_lb_lemma_md[i])
+for i in text_no_stopwords_punc_lemma_md.keys():
+    textdist[i] = FreqDist(text_no_stopwords_punc_lemma_md[i])
 
 textdistcov = {}
 for i in textdist.keys():
@@ -92,13 +100,13 @@ covlist = sorted(covlist)
 x1,y1 = zip(*covlist)
 plt.plot(x1,y1) # Output Plot: word frequency of COVID-19 by month
 
-text_no_stopwords_punc_lb_lemma_onn={} # only include non texts
-for i in text_no_stopwords_punc_lb_lemma.keys():
-    text_no_stopwords_punc_lb_lemma_onn[i]=[word for word in text_no_stopwords_punc_lb_lemma[i] if nltk.pos_tag([word])[0][1] == 'NN' ]
+text_no_stopwords_punc_lemma_onn={} # only include non texts
+for i in text_no_stopwords_punc_lemma.keys():
+    text_no_stopwords_punc_lemma_onn[i]=[word for word in text_no_stopwords_punc_lemma[i] if nltk.pos_tag([word])[0][1] == 'NN' ]
 
 textdistn = {}
-for i in text_no_stopwords_punc_lb_lemma_onn.keys():
-    textdistn[i] = FreqDist(text_no_stopwords_punc_lb_lemma_onn[i])
+for i in text_no_stopwords_punc_lemma_onn.keys():
+    textdistn[i] = FreqDist(text_no_stopwords_punc_lemma_onn[i])
 
 textdistncov = {}
 for i in textdistn.keys():
@@ -111,8 +119,8 @@ plt.plot(x2,y2) # Output Plot: word frequency of COVID-19 in non texts by month
 
 ### Sentiment Analysis
 sentidata = {}
-for i in data.keys():
-    sentidata[i]=' '.join(data[i])
+for i in data_by_month.keys():
+    sentidata[i]=' '.join(data_by_month[i])
     
 listsen = {}
 for i in sentidata.keys():
@@ -195,13 +203,52 @@ sort_dict = {} # sorted TF-IDF
 for i in tfidfdist.keys():
     sort_dict[i] = dict(sorted(tfidfdist[i].items(), key=lambda item: item[1], reverse=True))
 
+### Filter the COVID-19 Sentences
+list_sen=[]
+k = 0
+for i in data_by_date.keys():
+    temp = nltk.tokenize.sent_tokenize(data_by_date[i])
+    for j in range(len(temp)):
+        list_sen.append({'text':temp[j], 'metadata': i.strftime("%m/%d/%Y")+"-"+str(j)})
+        k += 1
+corpus = [text['text'] for text in list_sen]
+embedder = SentenceTransformer('all-MiniLM-L6-v2')
+corpus_embeddings = embedder.encode(corpus, convert_to_tensor=True)
+query = 'COVID 19'
+top_k = len(corpus)//20
+
+results = set()
+query_embedding = embedder.encode(query, convert_to_tensor=True)
+cos_scores = util.pytorch_cos_sim(query_embedding, corpus_embeddings)[0]
+top_results = torch.topk(cos_scores, k=top_k)
+for score, idx in zip(top_results[0], top_results[1]):
+    if len(corpus[idx]) > 10:
+        results.add(corpus[idx])
+filter = {}
+for i in data_by_date.keys():
+    temp=nltk.tokenize.sent_tokenize(data_by_date[i])
+    filter[i] = []
+    for j in range(len(temp)):
+        if temp[j] in results:
+            filter[i].append(temp[j])
+        else:
+            pass
+filter_m = defaultdict(list)
+for key in filter.keys():
+    temp = filter[key]
+    month = key.month
+    filter_m[month].append(temp) # filtered sentences by month
+
 ### Word Cloud
 stopwords = set(STOPWORDS)
-stopwords.update(["department", "program", "state", "nevada", "legislative", "project"])
+stopwords.update(["covid", "state", "nevada", "pandemic", "program", "project"])
 unique_string = {}
 wordcloud = {}
-for i in data.keys():
-    unique_string[i]=(" ").join(data[i])
+for i in filter_m.keys():
+    month_string = ""
+    for j in range(len(filter_m[i])):
+        month_string += (" ").join(filter_m[i][j])
+    unique_string[i] = month_string
     wordcloud[i] = WordCloud(stopwords=stopwords, background_color="white").generate(unique_string[i])
     plt.imshow(wordcloud[i], interpolation='bilinear')
     plt.axis("off")
