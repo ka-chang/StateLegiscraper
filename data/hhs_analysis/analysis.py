@@ -34,14 +34,13 @@ github_file_path = str(Path(os.getcwd()).parents[1]) # Sets to local Github dire
 sys.path.insert(1, github_file_path)
 
 from LegTextScraper.states.nv import NVProcess
-from LegTextScraper.dashboard_helper import NVHelper
 
 cleaned_data = NVProcess.nv_text_clean("nv_hhs_2021_raw.json", trim=True)
 with open("cleaned_data.json", 'w') as f: 
     json.dump(cleaned_data, f, ensure_ascii=False)
 
-data_by_date = NVHelper.nv_extract_date("cleaned_data.json")
-data_by_month = NVHelper.nv_extract_month("cleaned_data.json")
+data_by_date = NVProcess.nv_extract_date("cleaned_data.json")
+data_by_month = NVProcess.nv_extract_month("cleaned_data.json")
 
 ### Data Cleaning
 raw = {}
@@ -117,92 +116,6 @@ covnlist = sorted(covnlist)
 x2,y2 = zip(*covnlist)
 plt.plot(x2,y2) # Output Plot: word frequency of COVID-19 in non texts by month
 
-### Sentiment Analysis
-sentidata = {}
-for i in data_by_month.keys():
-    sentidata[i]=' '.join(data_by_month[i])
-    
-listsen = {}
-for i in sentidata.keys():
-    listsen[i]=nltk.tokenize.sent_tokenize(sentidata[i])
-
-listsen_cov = {} # filter the sentences which have covid-19
-for i in listsen.keys():
-    listsen_cov[i]=[sen for sen in listsen[i] if ' COVID-19' in sen]
-
-blob = {}
-for i in listsen_cov.keys():
-    blob[i] = TextBlob(' '.join(listsen_cov[i]))
-
-listsen_cov_pol = {}
-listsen_cov_sen = {}
-for i in blob.keys():
-    polarity=1
-    for j in range(len(blob[i].sentences)):
-        if blob[i].sentences[j].sentiment.polarity<polarity:
-            polarity=blob[i].sentences[j].sentiment.polarity
-            sentence=blob[i].sentences[j]
-    listsen_cov_pol[i]=polarity
-    listsen_cov_sen[i]=sentence
-
-covlistsen = listsen_cov_pol.items()
-covlistsen = sorted(covlistsen)
-x3,y3 = zip(*covlistsen)
-plt.plot(x3,y3) # Output Plot: the lowest polarity of covid sentenses by month
-
-listsen_cov_polp = {}
-listsen_cov_senp = {}
-for i in blob.keys():
-    polarity=-1
-    for j in range(len(blob[i].sentences)):
-        if blob[i].sentences[j].sentiment.polarity>polarity:
-            polarity=blob[i].sentences[j].sentiment.polarity
-            sentence=blob[i].sentences[j]
-    listsen_cov_polp[i]=polarity
-    listsen_cov_senp[i]=sentence
-
-covlistsenp = listsen_cov_polp.items()
-covlistsenp = sorted(covlistsenp)
-x4,y4 = zip(*covlistsenp)
-plt.plot(x4,y4) # Output Plot: the highest polarity of covid sentenses by month
-
-covsen = {}
-for i in blob.keys():
-    covsen[i]=blob[i].sentiment.polarity
-covsensen = covsen.items()
-covsensen = sorted(covsensen)
-x5,y5 = zip(*covsensen)
-plt.plot(x5,y5) # Output Plot: the polarity of covid sentences by month
-
-### TF-IDF
-termdist = {} # TF
-for i in textdist.keys():
-    count_words = len(textdist[i].keys())
-    termdist[i] = textdist[i]
-    for word, count in textdist[i].items():
-        termdist[i][word] = count / count_words
-
-idfdist = {} # IDF
-for i in termdist.keys():
-    for word, count in termdist[i].items():
-        if word in idfdist:
-            idfdist[word] += 1
-        else:
-            idfdist[word] = 1
-doc_count = len(termdist.keys())
-for word, count in idfdist.items():
-    idfdist[word] = math.log(doc_count/(count+1))
-
-tfidfdist = {} # TF-IDF
-for i in termdist.keys():
-    tfidfdist[i] = termdist[i]
-    for word, count in termdist[i].items():
-        tfidfdist[i][word] = count * idfdist[word]
-
-sort_dict = {} # sorted TF-IDF
-for i in tfidfdist.keys():
-    sort_dict[i] = dict(sorted(tfidfdist[i].items(), key=lambda item: item[1], reverse=True))
-
 ### Filter the COVID-19 Sentences
 list_sen=[]
 k = 0
@@ -239,9 +152,85 @@ for key in filter.keys():
     month = key.month
     filter_m[month].append(temp) # filtered sentences by month
 
+### Sentiment Analysis
+for i in filter_m.keys():
+    filter_m[i]=sum(filter_m[i], [])    #### erase the square brackets of the dictionary value
+blob={}
+for i in filter_m.keys():
+    blob[i] = TextBlob(' '.join(filter_m[i]))
+listsen_cov_pol={}
+listsen_cov_sen={}
+for i in blob.keys():
+    polarity=1
+    for j in range(len(blob[i].sentences)):
+        if blob[i].sentences[j].sentiment.polarity<polarity:
+            polarity=blob[i].sentences[j].sentiment.polarity
+            sentence=blob[i].sentences[j]
+    listsen_cov_pol[i]=polarity
+    listsen_cov_sen[i]=sentence
+listsen_cov_polp={}
+listsen_cov_senp={}
+for i in blob.keys():
+    polarity=-1
+    for j in range(len(blob[i].sentences)):
+        if blob[i].sentences[j].sentiment.polarity>polarity:
+            polarity=blob[i].sentences[j].sentiment.polarity
+            sentence=blob[i].sentences[j]
+    listsen_cov_polp[i]=polarity
+    listsen_cov_senp[i]=sentence
+covsen={}
+for i in blob.keys():
+    covsen[i]=blob[i].sentiment.polarity
+covlistsen = listsen_cov_pol.items()
+covlistsen = sorted(covlistsen)
+x3,y3 = zip(*covlistsen)
+covlistsenp = listsen_cov_polp.items()
+covlistsenp = sorted(covlistsenp)
+x4,y4 = zip(*covlistsenp)
+covsensen = covsen.items()
+covsensen = sorted(covsensen)
+x5,y5 = zip(*covsensen)
+plt.plot(x3,y3)
+plt.plot(x4,y4)
+plt.plot(x5,y5)
+plt.legend(['Lowest', 'Highest', 'Ave']) #label the line
+plt.show()
+print('The lowest scores are got by the following sentences:\n',listsen_cov_sen)
+print('The highest scores are got by the following sentences:\n',listsen_cov_senp)
+
+### TF-IDF
+termdist = {} # TF
+for i in textdist.keys():
+    count_words = len(textdist[i].keys())
+    termdist[i] = textdist[i]
+    for word, count in textdist[i].items():
+        termdist[i][word] = count / count_words
+
+idfdist = {} # IDF
+for i in termdist.keys():
+    for word, count in termdist[i].items():
+        if word in idfdist:
+            idfdist[word] += 1
+        else:
+            idfdist[word] = 1
+doc_count = len(termdist.keys())
+for word, count in idfdist.items():
+    idfdist[word] = math.log(doc_count/(count+1))
+
+tfidfdist = {} # TF-IDF
+for i in termdist.keys():
+    tfidfdist[i] = termdist[i]
+    for word, count in termdist[i].items():
+        tfidfdist[i][word] = count * idfdist[word]
+
+sort_dict = {} # sorted TF-IDF
+for i in tfidfdist.keys():
+    sort_dict[i] = dict(sorted(tfidfdist[i].items(), key=lambda item: item[1], reverse=True))
+
+
 ### Word Cloud
 stopwords = set(STOPWORDS)
-stopwords.update(["covid", "state", "nevada", "pandemic", "program", "project"])
+stopwords.update(["health", "covid", "state", "nevada", "pandemic"])
 unique_string = {}
 wordcloud = {}
 for i in filter_m.keys():
