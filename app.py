@@ -1,0 +1,3 @@
+"""
+LegTextScraper Plotly Dash Dashboard
+"""
