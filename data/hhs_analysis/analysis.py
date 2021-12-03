@@ -42,6 +42,7 @@ with open("cleaned_data.json", 'w') as f:
 
 data_by_date = NVHelper.nv_extract_date("cleaned_data.json")
 data_by_month = NVHelper.nv_extract_month("cleaned_data.json")
+
 ### Data Cleaning
 raw = {}
 for i in data_by_month.keys():
@@ -96,6 +97,7 @@ for i in textdist.keys():
 
 covlist = textdistcov.items()
 covlist = sorted(covlist)
+plt.figure()
 x1,y1 = zip(*covlist)
 plt.plot(x1,y1) # Output Plot: word frequency of COVID-19 by month
 
@@ -113,48 +115,14 @@ for i in textdistn.keys():
 
 covnlist = textdistncov.items()
 covnlist = sorted(covnlist)
+plt.figure()
 x2,y2 = zip(*covnlist)
 plt.plot(x2,y2) # Output Plot: word frequency of COVID-19 in non texts by month
 
-### Filter the COVID-19 Sentences
-list_sen=[]
-k = 0
-for i in data_by_date.keys():
-    temp = nltk.tokenize.sent_tokenize(data_by_date[i])
-    for j in range(len(temp)):
-        list_sen.append({'text':temp[j], 'metadata': i.strftime("%m/%d/%Y")+"-"+str(j)})
-        k += 1
-corpus = [text['text'] for text in list_sen]
-embedder = SentenceTransformer('all-MiniLM-L6-v2')
-corpus_embeddings = embedder.encode(corpus, convert_to_tensor=True)
-query = 'COVID 19'
-top_k = len(corpus)//20
-
-results = set()
-query_embedding = embedder.encode(query, convert_to_tensor=True)
-cos_scores = util.pytorch_cos_sim(query_embedding, corpus_embeddings)[0]
-top_results = torch.topk(cos_scores, k=top_k)
-for score, idx in zip(top_results[0], top_results[1]):
-    if len(corpus[idx]) > 10:
-        results.add(corpus[idx])
-filter = {}
-for i in data_by_date.keys():
-    temp=nltk.tokenize.sent_tokenize(data_by_date[i])
-    filter[i] = []
-    for j in range(len(temp)):
-        if temp[j] in results:
-            filter[i].append(temp[j])
-        else:
-            pass
-filter_m = defaultdict(list)
-for key in filter.keys():
-    temp = filter[key]
-    month = key.month
-    filter_m[month].append(temp) # filtered sentences by month
+with open('filtered_sentences_hhs.json', 'r') as file:
+    filter_m= json.load(file)
 
 ### Sentiment Analysis
-for i in filter_m.keys():
-    filter_m[i]=sum(filter_m[i], [])    #### erase the square brackets of the dictionary value
 blob={}
 for i in filter_m.keys():
     blob[i] = TextBlob(' '.join(filter_m[i]))
@@ -183,6 +151,7 @@ for i in blob.keys():
     covsen[i]=blob[i].sentiment.polarity
 covlistsen = listsen_cov_pol.items()
 covlistsen = sorted(covlistsen)
+plt.figure()
 x3,y3 = zip(*covlistsen)
 covlistsenp = listsen_cov_polp.items()
 covlistsenp = sorted(covlistsenp)
@@ -230,14 +199,11 @@ for i in tfidfdist.keys():
 
 ### Word Cloud
 stopwords = set(STOPWORDS)
-stopwords.update(["health", "covid", "state", "nevada", "pandemic"])
+stopwords.update(["covid", "state", "nevada", "pandemic", "program", "project", "health", "pandemic"])
 unique_string = {}
 wordcloud = {}
 for i in filter_m.keys():
-    month_string = ""
-    for j in range(len(filter_m[i])):
-        month_string += (" ").join(filter_m[i][j])
-    unique_string[i] = month_string
+    unique_string[i]=(" ").join(filter_m[i])
     wordcloud[i] = WordCloud(stopwords=stopwords, background_color="white").generate(unique_string[i])
     plt.imshow(wordcloud[i], interpolation='bilinear')
     plt.axis("off")
