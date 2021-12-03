@@ -8,6 +8,11 @@ from collections import defaultdict
 import datetime
 from datetime import date
 
+import nltk
+# nltk.download()
+from nltk import word_tokenize
+from sentence_transformers import SentenceTransformer, util
+import torch
 
 class NVHelper:
     
