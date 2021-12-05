@@ -16,7 +16,7 @@ import torch
 
 class NVHelper:
     
-   def nv_extract_month(nv_json_path):
+    def nv_extract_month(nv_json_path):
        """
        
        Parameters
@@ -43,37 +43,38 @@ class NVHelper:
            
        return(new_json_file)
   
-   def nv_extract_date(nv_json_path):
+    def nv_extract_date(nv_json_path):
        """
-       
+
        Parameters
        ----------
        Local path of cleaned nv_json file. 
-       
+
        Returns
        -------
        """
        data = open(nv_json_path)
        json_file = json.load(data)
-   
+
        new_json_file = defaultdict(list)
-   
+
        for key in json_file.keys():
            temp = json_file[key]
            match = re.search(r'(January|February|March|April|May|June|July|August|September|October|November|December)[ ]([1-9]|[12][0-9]|3[01])[,][ ]\d{4}', temp)
            date = datetime.datetime.strptime(match.group(), '%B %d, %Y').date()
            new_json_file[date] = temp
-           
+
        return(new_json_file)
 
     def filter_covid_sentences(data_by_date):
         """
-       
+
         Parameters
         ----------
         data_by_date json file 
         Returns
         -------
+        """
         list_sen=[]
         k = 0
         for i in data_by_date.keys():
@@ -113,3 +114,5 @@ class NVHelper:
 
         with open("filtered_sentences_hhs.json", 'w') as f: 
             json.dump(filter_m, f, ensure_ascii=False)
+
+
