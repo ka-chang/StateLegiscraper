@@ -11,7 +11,7 @@ app = dash.Dash(__name__,
                 external_stylesheets=["https://codepen.io/chriddyp/pen/bWLwgP.css",
                                       {'href': "https://codepen.io/chriddyp/pen/bWLwgP.css",
                                        'rel': 'stylesheet'}])
-image_filename = 'data//hhs_analysis//April.png'  # replace with your own image
+image_filename = 'data//hhs_analysis//April.png'
 encoded_image = base64.b64encode(open(image_filename, 'rb').read()).decode('ascii')
 
 colors = {"background": "#F3F6FA", "background_div": "#DFDDDF", 'text': '#009999'}
