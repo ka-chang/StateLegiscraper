@@ -11,7 +11,7 @@ app = dash.Dash(__name__,
                 external_stylesheets=["https://codepen.io/chriddyp/pen/bWLwgP.css",
                                       {'href': "https://codepen.io/chriddyp/pen/bWLwgP.css",
                                        'rel': 'stylesheet'}])
-image_filename = 'data//hhs_analysis//April.png' # replace with your own image
+image_filename = 'data//hhs_analysis//April.png'  # replace with your own image
 encoded_image = base64.b64encode(open(image_filename, 'rb').read()).decode('ascii')
 
 colors = {"background": "#F3F6FA", "background_div": "#DFDDDF", 'text': '#009999'}
@@ -25,17 +25,18 @@ def create_card(card_id, title):
                 html.H4(title, id=f"{card_id}-title"),
                 html.H6("100", id=f"{card_id}-value"),
                 html.Img(src='data:image/png;base64,{}'.format(encoded_image))
-                    # ]
+                # ]
                 # )
             ]
         )
     )
 
+
 app.layout = html.Div(style={'backgroundColor': colors['background']}, children=[
     html.H1('Legislature Text Scraper', style={
-            'textAlign': 'center',
-            'color': colors['text']
-        }),
+        'textAlign': 'center',
+        'color': colors['text']
+    }),
 
     html.Div(children=[
 
@@ -50,7 +51,8 @@ app.layout = html.Div(style={'backgroundColor': colors['background']}, children=
                     width='100%',
                 )
             ),
-        ], style={'display': 'inline-block', 'vertical-align': 'top', 'width': '30%', 'margin-left': '6vw', 'margin-top': '2vw', 'margin-bottom': '2vw'}),
+        ], style={'display': 'inline-block', 'vertical-align': 'top', 'width': '30%', 'margin-left': '6vw',
+                  'margin-top': '2vw', 'margin-bottom': '2vw'}),
 
         html.Div(children=[
             html.Label('Committee'),
@@ -64,7 +66,8 @@ app.layout = html.Div(style={'backgroundColor': colors['background']}, children=
                     width='100%',
                 )
             ),
-        ], style={'display': 'inline-block', 'vertical-align': 'top', 'width': '50%', 'margin-left': '10vw', 'margin-top': '2vw', 'margin-bottom': '2vw'}),
+        ], style={'display': 'inline-block', 'vertical-align': 'top', 'width': '50%', 'margin-left': '10vw',
+                  'margin-top': '2vw', 'margin-bottom': '2vw'}),
 
         html.Br(),
         html.Label('Time by month'),
@@ -114,5 +117,3 @@ app.layout = html.Div(style={'backgroundColor': colors['background']}, children=
 
 if __name__ == '__main__':
     app.run_server(debug=True)
-
-
