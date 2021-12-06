@@ -6,6 +6,7 @@ from dash import html
 import dash_bootstrap_components as dbc
 from dash import dcc
 import base64
+from dash.dependencies import Input, Output
 
 app = dash.Dash(__name__,
                 external_stylesheets=["https://codepen.io/chriddyp/pen/bWLwgP.css",
@@ -72,6 +73,7 @@ app.layout = html.Div(style={'backgroundColor': colors['background']}, children=
         html.Br(),
         html.Label('Time by month'),
         dcc.RangeSlider(
+            id='slider',
             min=1,
             max=5,
             step=None,
@@ -91,29 +93,58 @@ app.layout = html.Div(style={'backgroundColor': colors['background']}, children=
 
     ], style={'padding': 10, 'flex': 1}),
 
-    html.Div(style={'backgroundColor': colors['background']}, children=[
-        html.H3("Content analysis", style={
-            'textAlign': 'left',
-            'margin-left': '6vw',
-            'margin-top': '6vw',
-        }),
+    html.H3("Content analysis", style={
+        'textAlign': 'left',
+        'margin-left': '6vw',
+        'margin-top': '6vw',
+    }),
 
-        # first column of first row
-        html.Div(children=[
-            create_card('1', 'Title')
-        ], style={'display': 'inline-block', 'vertical-align': 'top', 'margin-left': '6vw', 'margin-top': '3vw'}),
+    # first column of first row
+    html.Div(children=[
+        create_card('1', 'Title')
+    ], style={'display': 'inline-block', 'vertical-align': 'top', 'margin-left': '6vw', 'margin-top': '3vw'}),
 
-        # second column of first row
-        html.Div(children=[
-            create_card('2', 'Title')
-        ], style={'display': 'inline-block', 'vertical-align': 'top', 'margin-left': '6vw', 'margin-top': '3vw'}),
+    # second column of first row
+    html.Div(children=[
+        create_card('2', 'Title')
+    ], style={'display': 'inline-block', 'vertical-align': 'top', 'margin-left': '6vw', 'margin-top': '3vw'}),
 
-        # Third column of first row
-        html.Div(children=[
-            create_card('3', 'Title')
-        ], style={'display': 'inline-block', 'vertical-align': 'top', 'margin-left': '6vw', 'margin-top': '3vw'}),
-    ])
+    # Third column of first row
+    html.Div(children=[
+        create_card('3', 'Title')
+    ], style={'display': 'inline-block', 'vertical-align': 'top', 'margin-left': '6vw', 'margin-top': '3vw'}),
+
+    html.Div(id='div_variable'),
+
+    html.H3("Sentiment analysis", style={
+        'textAlign': 'left',
+        'margin-left': '6vw',
+        'margin-top': '6vw',
+    }),
+
+    # first column of first row
+    html.Div(children=[
+        create_card('11', 'Title')
+    ], style={'display': 'inline-block', 'vertical-align': 'top', 'margin-left': '6vw', 'margin-top': '3vw'}),
+
+    # second column of first row
+    html.Div(children=[
+        create_card('22', 'Title')
+    ], style={'display': 'inline-block', 'vertical-align': 'top', 'margin-left': '6vw', 'margin-top': '3vw'}),
+    
 ])
+
+
+@app.callback(
+    Output('div_variable', 'children'),
+    [Input('slider', 'value')]
+)
+def update_div(num_div):
+    return [html.Div(children=[
+            create_card(f'{i}', f'{i}')
+        ], style={'display': 'inline-block', 'vertical-align': 'top', 'margin-left': '6vw', 'margin-top': '3vw'}
+        ) for i in range(num_div[1] - num_div[0] - 2)]
+
 
 if __name__ == '__main__':
     app.run_server(debug=True)
