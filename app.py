@@ -1,258 +1,201 @@
 """
 LegTextScraper Plotly Dash Dashboard
 """
-# This python program analyzes texts of hearings from hhs/finance assemnly and senate:
-# We focus on the topic of COVID-19.
-# Tasks:
-# (1) Word Counting (by month)
-# (2) Sentiment Analysis (by month)
-# (3) TF-IDF
-# (4) Visualizations
+import base64
 
 import json
-import os
-from pathlib import Path
-import sys
-from string import punctuation
-import re
-import math
-import datetime
-
-import nltk
-# nltk.download()
-from nltk import word_tokenize
-from nltk import pos_tag
-from nltk.corpus import stopwords
-from nltk.stem import WordNetLemmatizer
-from nltk.probability import FreqDist
-import matplotlib.pyplot as plt
-from textblob import TextBlob
-from wordcloud import WordCloud, STOPWORDS
-from sentence_transformers import SentenceTransformer, util
-import torch
-from collections import defaultdict
-
-
 import dash
-import base64
-import dash_html_components as html
+from dash import html
+import dash_bootstrap_components as dbc
+from dash import dcc
+from dash.dependencies import Input, Output
 
-github_file_path = str(Path(os.getcwd()).parents[1]) # Sets to local Github directory path
-sys.path.insert(1, github_file_path)
-my_path=os.path.abspath('')+'/data/hhs_analysis/'  #in order to get the output picture path
+from LegTextScraper import dashboard_helper
 
-from LegTextScraper.states.nv import NVProcess
-from LegTextScraper.dashboard_helper import NVHelper
+app = dash.Dash(__name__,
+                external_stylesheets=["https://codepen.io/chriddyp/pen/bWLwgP.css",
+                                      {'href': "https://codepen.io/chriddyp/pen/bWLwgP.css",
+                                       'rel': 'stylesheet'}])
+colors = {"background": "#F3F6FA", "background_div": "#DFDDDF", 'text': '#009999'}
 
-cleaned_data = NVProcess.nv_text_clean(my_path+'nv_hhs_2021_raw.json', trim=True)
-with open(my_path+'cleaned_data.json', 'w') as f: 
-    json.dump(cleaned_data, f, ensure_ascii=False)
 
-data_by_date = NVHelper.nv_extract_date(my_path+'cleaned_data.json')
-data_by_month = NVHelper.nv_extract_month(my_path+'cleaned_data.json')
+def create_card(card_id, title):
+    image_filename = 'data//hhs_analysis//April.png'
+    encoded_image = base64.b64encode(open(image_filename, 'rb').read()).decode('ascii')
+    return dbc.Card(
+        dbc.CardBody(
+            [
+                # html.Div(style={'backgroundColor': colors['background_div']}, children=[
+                html.H4(title, id=f"{card_id}-title"),
+                html.H6("100", id=f"{card_id}-value"),
+                html.Img(src='data:image/png;base64,{}'.format(encoded_image))
+                # ]
+                # )
+            ]
+        )
+    )
 
-### Data Cleaning
-raw = {}
-for i in data_by_month.keys():
-    raw[i] = json.dumps(data_by_month[i]) # convert json to string
 
-text = {}
-for i in raw.keys():
-    text[i]= [word.lower() for word in word_tokenize(raw[i])]
+app.layout = html.Div(style={'backgroundColor': colors['background']}, children=[
+    html.H1('Legislature Text Scraper', style={
+        'textAlign': 'center',
+        'color': colors['text']
+    }),
 
-stopwords_en = set(stopwords.words('english')) # set checking is faster than list
+    html.Div(children=[
 
-text_no_stopwords = {} # without stopwords
+        html.Div(children=[
+            html.Label('State'),
+            dcc.Dropdown(
+                options=[
+                    {'label': 'Nevada', 'value': 'NV'},
+                ],
+                value='NV',
+                style=dict(
+                    width='100%',
+                )
+            ),
+        ], style={'display': 'inline-block', 'vertical-align': 'top', 'width': '30%', 'margin-left': '6vw',
+                  'margin-top': '2vw', 'margin-bottom': '2vw'}),
 
-for i in text.keys():
-    text_no_stopwords[i] = [word for word in text[i] if word not in stopwords_en]
+        html.Div(children=[
+            html.Label('Committee'),
+            dcc.Dropdown(
+                id='committee',
+                options=[
+                    {'label': 'Health and Human Service Committee', 'value': 'HHS'},
+                    {'label': 'Finance Committee', 'value': 'FIN'},
+                ],
+                value='HHS',
+                style=dict(
+                    width='100%',
+                )
+            ),
+        ], style={'display': 'inline-block', 'vertical-align': 'top', 'width': '50%', 'margin-left': '10vw',
+                  'margin-top': '2vw', 'margin-bottom': '2vw'}),
 
-text_no_stopwords_punc = {} # without punctuations
-for i in text_no_stopwords.keys():
-    text_no_stopwords_punc[i] = [word for word in text_no_stopwords[i] if word not in punctuation]
+        html.Br(),
+        html.Label('Time by month'),
+        dcc.RangeSlider(
+            id='slider',
+            min=1,
+            max=5,
+            step=None,
+            marks={
+                1: 'JAN',
+                2: 'FEB',
+                3: 'MAR',
+                4: 'APR',
+                5: 'MAY',
+            },
+            value=[1, 4]
+        ),
 
-wnl = WordNetLemmatizer()
+        html.Br(),
+        html.Label('Search Topic'),
+        dcc.Input(id='query', value='Covid 19', type='text', style=dict(width='100%', )),
 
-def penn2morphy(penntag):
-    """ Converts Penn Treebank tags to WordNet. """
-    morphy_tag = {'NN':'n', 'JJ':'a',
-                  'VB':'v', 'RB':'r'}
-    try:
-        return morphy_tag[penntag[:2]]
-    except:
-        return 'n' 
-    
-def lemmatize_sent(text): 
-    return [wnl.lemmatize(word.lower(), pos=penn2morphy(tag)) 
-            for word, tag in pos_tag(text)]
+    ], style={'padding': 10, 'flex': 1}),
 
-text_no_stopwords_punc_lemma = {} # after lemmatization
-for i in text_no_stopwords_punc.keys():
-    text_no_stopwords_punc_lemma[i]=lemmatize_sent(text_no_stopwords_punc[i])
+    html.H3("Content analysis", style={
+        'textAlign': 'left',
+        'margin-left': '6vw',
+        'margin-top': '6vw',
+    }),
 
-text_no_stopwords_punc_lemma_md = {}
-for i in text_no_stopwords_punc_lemma.keys():
-    text_no_stopwords_punc_lemma_md[i]=[word for word in text_no_stopwords_punc_lemma[i] if nltk.pos_tag([word])[0][1] != 'MD']
+    # first column of first row
+    html.Div(children=[
+        create_card('1', 'Title')
+    ], style={'display': 'inline-block', 'vertical-align': 'top', 'margin-left': '6vw', 'margin-top': '3vw'}),
 
-### Word Counting
-textdist = {}
-for i in text_no_stopwords_punc_lemma_md.keys():
-    textdist[i] = FreqDist(text_no_stopwords_punc_lemma_md[i])
+    # second column of first row
+    html.Div(children=[
+        create_card('2', 'Title')
+    ], style={'display': 'inline-block', 'vertical-align': 'top', 'margin-left': '6vw', 'margin-top': '3vw'}),
 
-textdistcov = {}
-for i in textdist.keys():
-    textdistcov[i] = textdist[i].freq('covid-19')*100
+    # Third column of first row
+    html.Div(children=[
+        create_card('3', 'Title')
+    ], style={'display': 'inline-block', 'vertical-align': 'top', 'margin-left': '6vw', 'margin-top': '3vw'}),
 
-covlist = textdistcov.items()
-covlist = sorted(covlist)
-plt.figure()
-x1,y1 = zip(*covlist)
-plt.plot(x1,y1) # Output Plot: word frequency of COVID-19 by month
-#fig.savefig(my_path + 'pictures/word_fre.png')
-plt.savefig(my_path + 'pictures/word_fre.png')
+    html.Div(id='div_variable'),
 
-text_no_stopwords_punc_lemma_onn={} # only include non texts
-for i in text_no_stopwords_punc_lemma.keys():
-    text_no_stopwords_punc_lemma_onn[i]=[word for word in text_no_stopwords_punc_lemma[i] if nltk.pos_tag([word])[0][1] == 'NN' ]
+    html.H3("Sentiment analysis", style={
+        'textAlign': 'left',
+        'margin-left': '6vw',
+        'margin-top': '6vw',
+    }),
 
-textdistn = {}
-for i in text_no_stopwords_punc_lemma_onn.keys():
-    textdistn[i] = FreqDist(text_no_stopwords_punc_lemma_onn[i])
+    # first column of first row
+    html.Div(children=[
+        create_card('11', 'Title')
+    ], style={'display': 'inline-block', 'vertical-align': 'top', 'margin-left': '6vw', 'margin-top': '3vw'}),
 
-textdistncov = {}
-for i in textdistn.keys():
-    textdistncov[i] = textdistn[i].freq('covid-19')*100
+    # second column of first row
+    html.Div(children=[
+        create_card('22', 'Title')
+    ], style={'display': 'inline-block', 'vertical-align': 'top', 'margin-left': '6vw', 'margin-top': '3vw'}),
 
-covnlist = textdistncov.items()
-covnlist = sorted(covnlist)
-plt.figure()
-x2,y2 = zip(*covnlist)
-plt.plot(x2,y2) # Output Plot: word frequency of COVID-19 in non texts by month
-plt.savefig(my_path + 'pictures/word_fre_n.png')
-#plt.savefig('word_fre_n.png')
-plt.close('all')
-with open(my_path+'filtered_sentences_hhs.json', 'r') as file:
-    filter_m= json.load(file)
+])
 
-### Sentiment Analysis
-blob={}
-for i in filter_m.keys():
-    blob[i] = TextBlob(' '.join(filter_m[i]))
-listsen_cov_pol={}
-listsen_cov_sen={}
-for i in blob.keys():
-    polarity=1
-    for j in range(len(blob[i].sentences)):
-        if blob[i].sentences[j].sentiment.polarity<polarity:
-            polarity=blob[i].sentences[j].sentiment.polarity
-            sentence=blob[i].sentences[j]
-    listsen_cov_pol[i]=polarity
-    listsen_cov_sen[i]=sentence
-listsen_cov_polp={}
-listsen_cov_senp={}
-for i in blob.keys():
-    polarity=-1
-    for j in range(len(blob[i].sentences)):
-        if blob[i].sentences[j].sentiment.polarity>polarity:
-            polarity=blob[i].sentences[j].sentiment.polarity
-            sentence=blob[i].sentences[j]
-    listsen_cov_polp[i]=polarity
-    listsen_cov_senp[i]=sentence
-covsen={}
-for i in blob.keys():
-    covsen[i]=blob[i].sentiment.polarity
-covlistsen = listsen_cov_pol.items()
-covlistsen = sorted(covlistsen)
-#plt.figure()
-x3,y3 = zip(*covlistsen)
-covlistsenp = listsen_cov_polp.items()
-covlistsenp = sorted(covlistsenp)
-x4,y4 = zip(*covlistsenp)
-covsensen = covsen.items()
-covsensen = sorted(covsensen)
-x5,y5 = zip(*covsensen)
-plt.plot(x3,y3)
-plt.plot(x4,y4)
-plt.plot(x5,y5)
-plt.legend(['Lowest', 'Highest', 'Ave']) #label the line
-plt.savefig(my_path + 'pictures/senti_analy.png')
-plt.show()
 
-print('The lowest scores are got by the following sentences:\n',listsen_cov_sen)
-print('The highest scores are got by the following sentences:\n',listsen_cov_senp)
+def create_wordcloud(card_id, title, key_words, file_name):
+    image_path = 'dashboard//wordcloud//' + file_name
+    encoded_image = base64.b64encode(open(image_path, 'rb').read()).decode('ascii')
+    return dbc.Card(
+        dbc.CardBody(
+            [
+                html.H4(title, id=f"{card_id}-title"),
+                html.H6("Keywords: " + ", ".join(key_words)),
+                html.Img(src='data:image/png;base64,{}'.format(encoded_image))
+            ]
+        )
+    )
 
-### TF-IDF
-termdist = {} # TF
-for i in textdist.keys():
-    count_words = len(textdist[i].keys())
-    termdist[i] = textdist[i]
-    for word, count in textdist[i].items():
-        termdist[i][word] = count / count_words
+@app.callback(
+    Output('div_variable', 'children'),
+    [Input('slider', 'value')],
+    Input('committee', 'value'),
+    Input('query', 'value'),
+)
+def update_div(num_div, file, query):
+    if file == "HHS":
+        data_by_date = dashboard_helper.NVHelper.nv_extract_date("data//hhs_analysis//cleaned_data.json")
+    elif file == 'FIN':
+        data_by_date = dashboard_helper.NVHelper.nv_extract_date("data//fin_analysis//cleaned_data.json")
+    else:
+        data_by_date = dashboard_helper.NVHelper.nv_extract_date("data//hhs_analysis//cleaned_data.json")
 
-idfdist = {} # IDF
-for i in termdist.keys():
-    for word, count in termdist[i].items():
-        if word in idfdist:
-            idfdist[word] += 1
+    sm_search = dashboard_helper.NVSemanticSearching(data_by_date, query, 5)
+    # filtered_dict = sm_search.rapid_searching("data//hhs_data//")
+    file_dict = open("data//hhs_analysis//hhs_nv_filter.json", 'r', encoding='utf-8')
+    filtered_dict = json.load(file_dict)
+
+    text_preprocessing = dashboard_helper.NVTextProcessing(filtered_dict)
+    text_preprocessing.text_processing()
+    processed_dict = text_preprocessing.json
+
+    word_freq_month = {}
+    for i in processed_dict.keys():
+        month = i[:2]
+        if month not in word_freq_month:
+            word_freq_month[month] = processed_dict[i]
         else:
-            idfdist[word] = 1
-doc_count = len(termdist.keys())
-for word, count in idfdist.items():
-    idfdist[word] = math.log(doc_count/(count+1))
+            word_freq_month[month].extend(processed_dict[i])
 
-tfidfdist = {} # TF-IDF
-for i in termdist.keys():
-    tfidfdist[i] = termdist[i]
-    for word, count in termdist[i].items():
-        tfidfdist[i][word] = count * idfdist[word]
-
-sort_dict = {} # sorted TF-IDF
-for i in tfidfdist.keys():
-    sort_dict[i] = dict(sorted(tfidfdist[i].items(), key=lambda item: item[1], reverse=True))
-
-
-### Word Cloud
-stopwords = set(STOPWORDS)
-stopwords.update(["covid", "state", "nevada", "pandemic", "program", "project", "health", "pandemic"])
-unique_string = {}
-wordcloud = {}
-for i in filter_m.keys():
-    unique_string[i]=(" ").join(filter_m[i])
-    wordcloud[i] = WordCloud(stopwords=stopwords, background_color="white").generate(unique_string[i])
-    plt.imshow(wordcloud[i], interpolation='bilinear')
-    plt.axis("off")
-    c=int(i)+1
-    add_path=str(c)+'.png'
-    plt.savefig(my_path + 'pictures/'+add_path)
-    plt.show() # Output Plots: word cloud plots by month
-
-test_png_w = my_path+'pictures/'+'word_fre.png'
-test_png_wn = my_path+'pictures/'+'word_fre_n.png'
-test_png_sen =my_path+'pictures/'+'senti_analy.png'
-test_base64={}
-test_base64['word_fre.png'] = base64.b64encode(open(test_png_w, 'rb').read()).decode('ascii')
-test_base64['word_fre_n.png'] = base64.b64encode(open(test_png_wn, 'rb').read()).decode('ascii')
-test_base64['senti_analy.png'] = base64.b64encode(open(test_png_sen, 'rb').read()).decode('ascii')
-word_cloud={}
-
-for i in filter_m.keys():
-    c=int(i)+1
-    word_cloud[i]=my_path+'pictures/'+str(c)+'.png'
-    test_base64[i]=base64.b64encode(open(word_cloud[i], 'rb').read()).decode('ascii')
-
-html_img={}
-for i in test_base64.keys():
-    html_img[i]=html.Img(src='data:image/png;base64,{}'.format(test_base64[i]))
-    
-    
-    
-import dash
-import base64
-import dash_html_components as html
-
-app = dash.Dash(__name__)
-app.layout = html.Div(list(html_img.values()))
+    analysis_freq = dashboard_helper.NVTextAnalysis(word_freq_month)
+    _, word_freq = analysis_freq.word_frequency()
+    _, word_key = analysis_freq.key_word_by_month()
+    for i in range(num_div[0]+1, num_div[1]+1):
+        dashboard_helper.NVVisualizations.word_cloud(word_freq[str(i).zfill(2)], "dashboard//wordcloud//", str(i).zfill(2))
+    results = dashboard_helper.NVVisualizations.key_word_display(word_key, 6)
+    month = {'05': 'May', '04': 'April', '03': 'March', '02': 'February', '01': 'January', }
+    return [html.Div(children=[
+            create_wordcloud(f'{i}', month[str(i).zfill(2)], results[str(i).zfill(2)], str(i).zfill(2) + '.png')
+            # create_card(f'{i}', "Title")
+        ], style={'display': 'inline-block', 'vertical-align': 'top', 'margin-left': '6vw', 'margin-top': '3vw'}
+        ) for i in range(num_div[0]+1, num_div[1]+1)]
 
 
 if __name__ == '__main__':
-    app.run_server()
+    app.run_server(debug=True)
