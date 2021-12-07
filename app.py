@@ -88,7 +88,7 @@ app.layout = html.Div(style={'backgroundColor': colors['background']}, children=
                 4: 'APR',
                 5: 'MAY',
             },
-            value=[1, 4]
+            value=[2, 5]
         ),
 
         html.Br(),
@@ -103,21 +103,6 @@ app.layout = html.Div(style={'backgroundColor': colors['background']}, children=
         'margin-top': '6vw',
     }),
 
-    # first column of first row
-    html.Div(children=[
-        create_card('1', 'Title')
-    ], style={'display': 'inline-block', 'vertical-align': 'top', 'margin-left': '6vw', 'margin-top': '3vw'}),
-
-    # second column of first row
-    html.Div(children=[
-        create_card('2', 'Title')
-    ], style={'display': 'inline-block', 'vertical-align': 'top', 'margin-left': '6vw', 'margin-top': '3vw'}),
-
-    # Third column of first row
-    html.Div(children=[
-        create_card('3', 'Title')
-    ], style={'display': 'inline-block', 'vertical-align': 'top', 'margin-left': '6vw', 'margin-top': '3vw'}),
-
     html.Div(id='div_variable'),
 
     html.H3("Sentiment analysis", style={
@@ -126,15 +111,17 @@ app.layout = html.Div(style={'backgroundColor': colors['background']}, children=
         'margin-top': '6vw',
     }),
 
-    # first column of first row
+    # first column
     html.Div(children=[
         create_card('11', 'Title')
-    ], style={'display': 'inline-block', 'vertical-align': 'top', 'margin-left': '6vw', 'margin-top': '3vw'}),
+    ], style={'display': 'inline-block', 'vertical-align': 'top', 'margin-left': '6vw', 'margin-top': '3vw',
+              'margin-bottom': '6vw', }),
 
-    # second column of first row
+    # second column
     html.Div(children=[
         create_card('22', 'Title')
-    ], style={'display': 'inline-block', 'vertical-align': 'top', 'margin-left': '6vw', 'margin-top': '3vw'}),
+    ], style={'display': 'inline-block', 'vertical-align': 'top', 'margin-left': '6vw', 'margin-top': '3vw',
+              'margin-bottom': '6vw', }),
 
 ])
 
@@ -147,7 +134,7 @@ def create_wordcloud(card_id, title, key_words, file_name):
             [
                 html.H4(title, id=f"{card_id}-title"),
                 html.H6("Keywords: " + ", ".join(key_words)),
-                html.Img(src='data:image/png;base64,{}'.format(encoded_image))
+                html.Img(src='data:image/png;base64,{}'.format(encoded_image), style={'height':'80%', 'width':'80%'})
             ]
         )
     )
@@ -161,15 +148,17 @@ def create_wordcloud(card_id, title, key_words, file_name):
 def update_div(num_div, file, query):
     if file == "HHS":
         data_by_date = dashboard_helper.NVHelper.nv_extract_date("data//hhs_analysis//cleaned_data.json")
+        file_dict = open("data//hhs_analysis//hhs_nv_filter.json", 'r', encoding='utf-8')
+        filtered_dict = json.load(file_dict)
     elif file == 'FIN':
         data_by_date = dashboard_helper.NVHelper.nv_extract_date("data//fin_analysis//cleaned_data.json")
+        file_dict = open("data//fin_analysis//hhs_nv_filter.json", 'r', encoding='utf-8')
+        filtered_dict = json.load(file_dict)
     else:
         data_by_date = dashboard_helper.NVHelper.nv_extract_date("data//hhs_analysis//cleaned_data.json")
 
     sm_search = dashboard_helper.NVSemanticSearching(data_by_date, query, 5)
     # filtered_dict = sm_search.rapid_searching("data//hhs_data//")
-    file_dict = open("data//hhs_analysis//hhs_nv_filter.json", 'r', encoding='utf-8')
-    filtered_dict = json.load(file_dict)
 
     text_preprocessing = dashboard_helper.NVTextProcessing(filtered_dict)
     text_preprocessing.text_processing()
@@ -186,15 +175,16 @@ def update_div(num_div, file, query):
     analysis_freq = dashboard_helper.NVTextAnalysis(word_freq_month)
     _, word_freq = analysis_freq.word_frequency()
     _, word_key = analysis_freq.key_word_by_month()
-    for i in range(num_div[0]+1, num_div[1]+1):
-        dashboard_helper.NVVisualizations.word_cloud(word_freq[str(i).zfill(2)], "dashboard//wordcloud//", str(i).zfill(2))
-    results = dashboard_helper.NVVisualizations.key_word_display(word_key, 6)
+
     month = {'05': 'May', '04': 'April', '03': 'March', '02': 'February', '01': 'January', }
+    for i in range(num_div[0], num_div[1]+1):
+        dashboard_helper.NVVisualizations.word_cloud(word_freq[str(i).zfill(2)], "dashboard//wordcloud//", str(i).zfill(2))
+    results = dashboard_helper.NVVisualizations.key_word_display(word_key, 4)
+
     return [html.Div(children=[
             create_wordcloud(f'{i}', month[str(i).zfill(2)], results[str(i).zfill(2)], str(i).zfill(2) + '.png')
-            # create_card(f'{i}', "Title")
         ], style={'display': 'inline-block', 'vertical-align': 'top', 'margin-left': '6vw', 'margin-top': '3vw'}
-        ) for i in range(num_div[0]+1, num_div[1]+1)]
+        ) for i in range(num_div[0], num_div[1]+1)]
 
 
 if __name__ == '__main__':
