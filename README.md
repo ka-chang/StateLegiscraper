@@ -24,8 +24,8 @@ However, unlike the U.S. Congress, the 50 state legislatures have vastly differe
 │   ├── test
 │   └── dashboard_helper.py
 ├── data
-│   ├── dashboard_data
-│   └── states_data
+│   ├── dashboard
+│   └── states
 ├── doc
 ├── examples
 ├── LICENSE
