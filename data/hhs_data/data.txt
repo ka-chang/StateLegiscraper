@@ -1,0 +1,3 @@
+cleaned_data.json is the input json file that has been cleaned
+corpus.json is a list containing all sentence tokens from cleaned_data.json
+corpus_embedding.pt is the encoded sentences from corpus.json 
