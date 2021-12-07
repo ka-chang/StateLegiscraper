@@ -1,6 +1,10 @@
 # LegTextScraper
 
+<img src="doc/readme_map/readme_map.png" height="200" width="350" align=right>
+
 A text webscraping tool for U.S. state legislature websites, with options for speech-to-text generated transcripts and public-facing example dashboards that include basic text analysis on specific policy areas.
+
+Current coverage includes Nevada and Washington.
 
 ## Mission
 
@@ -11,6 +15,24 @@ The mission of LegTextScraper is to build and make accessible text corpora of po
 In recent years, a number of controversial bills and policy proposals have emerged in state legislatures and media attention has increasingly focus on state legislative politics. But beyond recent news, public oversight of the policymaking process is an important cornerstone of democratic nations. As the current U.S. political climate has increasingly shifted national politics to the state-level, state legislatures are key policy venues to watch.
 
 However, unlike the U.S. Congress, the 50 state legislatures have vastly different websites and public documentation protocols. Therefore, a systemic examination of national trends at the state-level is difficult to execute due to challenges in navigating, accessing, and processing relevant data. While projects such as [LegiScan](https://legiscan.com), [Civic Eagle](https://www.civiceagle.com/), and [Open States](https://openstates.org/) have APIs that provide data about bills and representatives across all 50 states, there is currently no open source option that scrapes and processes written and spoken transcripts of state legislature commitee hearings and floor speeches for research purposes and public review. 
+
+## Repository Structure
+ ```
+.
+├── LegTextScraper
+│   ├── states
+│   ├── test
+│   └── dashboard_helper.py
+├── data
+│   ├── dashboard_data
+│   └── states_data
+├── doc
+├── LICENSE
+├── README.md
+├── app.py
+├── environment.yml
+└── requirements.txt
+ ```
 
 ## Requirements
 
