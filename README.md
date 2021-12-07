@@ -27,12 +27,15 @@ However, unlike the U.S. Congress, the 50 state legislatures have vastly differe
 │   ├── dashboard_data
 │   └── states_data
 ├── doc
+├── examples
 ├── LICENSE
 ├── README.md
 ├── app.py
 ├── environment.yml
-└── requirements.txt
+├── requirements.txt
+└── travis.yml
  ```
+The `LegTextScraper` directory includes a `states` module, unit tests in `test`, and a `dashboard_helper` function script. Data relevant to dashboard and the states module are included in `data` directory. The `examples` directory provides example Jupyter notebooks that can help new users learn the ways LegTextScraper organizes scraping and processing. A Plotly Dash dashboard can run locally through the `app.py` file (see [Dashboard](###Dashboard) section below for details.
 
 ## Requirements
 
@@ -71,6 +74,8 @@ LegTextScraper contains U.S. state-specific modules that each contain two classe
 
 - The Scrape class bundles functions that scrape U.S. state legislature websites for individual committee hearing and floor speech PDF / audio / video transcript links. Users export this raw data to their local drive or a mounted cloud drive.
 - The Process class bundles functions that cleans and formats the raw scraped data into Python objects appropriate to use for popular NLP packages (e.g., nltk, SpaCy). Scraped PDF files will be converted to dictionary objects, while audio and video files will use Deep Speech, an open-source speech-to-text engine, to generate a text transcript of selected meetings. These transcripts can be used as dictionary objects, or exported as a JSON file.
+
+Example Jupyter notebooks are provided in the [examples directory](https://github.com/ka-chang/LegTextScraper/tree/main/examples) that walk new users through LegTextScraper's scrape and process functions, including expected behavior from Selenium and file management strategies.
 
 ### Dashboard
 
