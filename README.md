@@ -35,7 +35,7 @@ However, unlike the U.S. Congress, the 50 state legislatures have vastly differe
 ├── requirements.txt
 └── travis.yml
  ```
-The `LegTextScraper` directory includes a `states` module, unit tests in `test`, and a `dashboard_helper` function script. Data relevant to dashboard and the states module are included in `data` directory. The `examples` directory provides example Jupyter notebooks that can help new users learn the ways LegTextScraper organizes scraping and processing. A Plotly Dash dashboard can run locally through the `app.py` file (see [Dashboard](###Dashboard) section below for details.
+The `LegTextScraper` directory includes a `states` module, unit tests in `test`, and a `dashboard_helper` function script. Data relevant to dashboard and the states module are included in `data` directory. The `examples` directory provides example Jupyter notebooks that can help new users learn the ways LegTextScraper organizes scraping and processing. A Plotly Dash dashboard can run locally through the `app.py` file (see [Dashboard](https://github.com/ka-chang/LegTextScraper/blob/main/README.md#dashboard) section below for details.
 
 ## Requirements
 
