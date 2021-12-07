@@ -1,4 +1,4 @@
-# LegTextScraper
+# LegTextScraper (StateLegiScrapers)
 
 <img src="doc/readme_map/readme_map.png" height="200" width="350" align=right>
 
