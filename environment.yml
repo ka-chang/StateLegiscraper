@@ -1,4 +1,4 @@
-name: legtextscraper
+name: statelegiscraper
 channels:
   - defaults
 dependencies:

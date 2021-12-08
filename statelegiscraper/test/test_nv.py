@@ -33,8 +33,8 @@ import os
 import sys
 import unittest
 
-from LegTextScraper.states.nv import NVScrape
-from LegTextScraper.states.nv import NVProcess
+from statelegiscraper.states.nv import NVScrape
+from statelegiscraper.states.nv import NVProcess
 
 # Test Data
 

@@ -11,7 +11,7 @@ Planned Coverage:
 
 # NV Work Flow
     
-LegTextScraper has two classes for each state module: Scrape and Process
+StateLegiscraper has two classes for each state module: Scrape and Process
 
     NV_Scrape includes 1 function that scrapes PDF transcripts present at a list of weblinks
     This class provides user with raw data saved on a local or mounted drive

@@ -1,4 +1,4 @@
-# Leg Text Scraper Design Specification
+# StateLegiscraper Design Specification
 
 ## Description
 
