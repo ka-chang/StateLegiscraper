@@ -8,7 +8,7 @@ Current coverage includes Nevada and Washington.
 
 ## Mission
 
-The mission of StateLegiscraper is to build and make accessible text corpora of political, social, and scholarly significance that can build greater public transparency and academic knowledge about public policymaking and state-level politics. 
+The mission of StateLegiscraper is to make accessible text corpora of political, social, and scholarly significance that can build greater public transparency and academic knowledge about public policymaking and state-level politics. 
 
 ## Project Objective
 
@@ -19,7 +19,7 @@ However, each of the 50 state legislatures have vastly different websites and pu
 ## Repository Structure
  ```
 .
-├── StateLegiscraper
+├── statelegiscraper
 │   ├── states
 │   ├── test
 │   └── dashboard_helper.py
@@ -35,7 +35,7 @@ However, each of the 50 state legislatures have vastly different websites and pu
 ├── requirements.txt
 └── travis.yml
  ```
-The `StateLegiscraper` directory includes a `states` module, unit tests in `test`, and a `dashboard_helper` function script. Data relevant to dashboard and the states module are included in `data` directory. The `examples` directory provides example Jupyter notebooks that can help new users learn the ways StateLegiscraper organize scraping and processing. A Plotly Dash dashboard can run locally through the `app.py` file (see [Dashboard](https://github.com/ka-chang/StateLegiscraper/blob/main/README.md#dashboard) section below for details.
+The `statelegiscraper` directory includes a `states` module, unit tests in `test`, and a `dashboard_helper` function script. Data relevant to dashboard and the states module are included in `data` directory. The `examples` directory provides example Jupyter notebooks that can help new users learn the ways StateLegiscraper organize scraping and processing. A Plotly Dash dashboard can run locally through the `app.py` file (see [Dashboard](https://github.com/ka-chang/StateLegiscraper/blob/main/README.md#dashboard) section below for details.
 
 ## Requirements
 
