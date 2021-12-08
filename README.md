@@ -35,7 +35,7 @@ However, each of the 50 state legislatures have vastly different websites and pu
 ├── requirements.txt
 └── travis.yml
  ```
-The `StateLegiscraper` directory includes a `states` module, unit tests in `test`, and a `dashboard_helper` function script. Data relevant to dashboard and the states module are included in `data` directory. The `examples` directory provides example Jupyter notebooks that can help new users learn the ways StateLegiscraper organizes scraping and processing. A Plotly Dash dashboard can run locally through the `app.py` file (see [Dashboard](https://github.com/ka-chang/StateLegiscraper/blob/main/README.md#dashboard) section below for details.
+The `StateLegiscraper` directory includes a `states` module, unit tests in `test`, and a `dashboard_helper` function script. Data relevant to dashboard and the states module are included in `data` directory. The `examples` directory provides example Jupyter notebooks that can help new users learn the ways StateLegiscraper organize scraping and processing. A Plotly Dash dashboard can run locally through the `app.py` file (see [Dashboard](https://github.com/ka-chang/StateLegiscraper/blob/main/README.md#dashboard) section below for details.
 
 ## Requirements
 
@@ -62,8 +62,8 @@ StateLegiscraper is installed using the command line and is best used with a vir
 1. Open your choice of terminal (e.g., Terminal (MacOS) or [Ubuntu 20.04 LTS](https://www.microsoft.com/en-us/p/ubuntu-2004-lts/9n6svws3rx71?activetab=pivot:overviewtab) (Windows))
 2. Clone the repoistory using `git clone https://github.com/ka-chang/StateLegiscraper.git`
 3. Change to the StateLegiscraper repository using `cd StateLegiscraper`
-4. Set up a new virtual environment using `conda create –n legtextscraper python=3.7`
-5. Activate the legtextscraper virtual environment with `conda activate legtextscraper`
+4. Set up a new virtual environment using `conda create –n statelegiscraper python=3.7`
+5. Activate the statelegiscraper virtual environment with `conda activate statelegiscraper`
 6. Install package requirements using `pip3 install –r requirements.txt`
 
 ## Usage
