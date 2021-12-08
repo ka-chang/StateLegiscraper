@@ -19,21 +19,20 @@ However, each of the 50 state legislatures have vastly different websites and pu
 ## Repository Structure
  ```
 .
-├── statelegiscraper
-│   ├── states
-│   ├── test
-│   └── dashboard_helper.py
 ├── data
 │   ├── dashboard
 │   └── states
 ├── doc
 ├── examples
+├── statelegiscraper
+│   ├── states
+│   ├── test
+│   └── dashboard_helper.py
 ├── LICENSE
 ├── README.md
 ├── app.py
 ├── environment.yml
-├── requirements.txt
-└── travis.yml
+└── requirements.txt
  ```
 The `statelegiscraper` directory includes a `states` module, unit tests in `test`, and a `dashboard_helper` function script. Data relevant to dashboard and the states module are included in `data` directory. The `examples` directory provides example Jupyter notebooks that can help new users learn the ways StateLegiscraper organize scraping and processing. A Plotly Dash dashboard can run locally through the `app.py` file (see [Dashboard](https://github.com/ka-chang/StateLegiscraper/blob/main/README.md#dashboard) section below for details.
 
