@@ -1,5 +1,5 @@
 """
-WA module for scrapping and processing text from https://leg.wa.gov 
+WA module for scraping and processing text from https://leg.wa.gov 
 
 # Status
 

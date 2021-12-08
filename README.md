@@ -4,7 +4,7 @@
 
 A text webscraping tool for U.S. state legislature websites, with options for speech-to-text generated transcripts and public-facing example dashboards that include basic text analysis on specific policy areas.
 
-Current coverage includes Nevada and Washington.
+Current coverage includes Nevada and Washington, with California in the design phase.
 
 ## Mission
 
