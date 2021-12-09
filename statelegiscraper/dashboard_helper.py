@@ -16,6 +16,7 @@ from nltk import pos_tag
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from nltk.probability import FreqDist
+from textblob import TextBlob
 from sentence_transformers import SentenceTransformer, util
 from wordcloud import WordCloud, STOPWORDS
 import torch
@@ -448,36 +449,39 @@ class NVTextAnalysis:
         sorted_dict = self.__sort_dict(dict_by_month)
         return dict_by_month, sorted_dict
 
-    def sentiment_analysis(word_freq_dict):
+    def sentiment_analysis(self):
         """
         Sentiment analysis on self.json.
         """
+        with open('filtered_sentences_hhs.json', 'r') as file:
+              filter_m= json.load(file)
+        blob={}
+        for i in filter_m.keys():
+            blob[i] = TextBlob(' '.join(filter_m[i]))
         listsen_cov_pol = {}
         listsen_cov_sen = {}
-        for i in word_freq_dict.keys():
+        for i in blob.keys():
             polarity = 1
-            for j in range(len(word_freq_dict[i].sentences)):
-                if word_freq_dict[i].sentences[j].sentiment.polarity < polarity:
-                    polarity = word_freq_dict[i].sentences[j].sentiment.polarity
-                    sentence = word_freq_dict[i].sentences[j]
+            for j in range(len(blob[i].sentences)):
+                if blob[i].sentences[j].sentiment.polarity < polarity:
+                    polarity = blob[i].sentences[j].sentiment.polarity
+                    sentence = blob[i].sentences[j]
             listsen_cov_pol[i] = polarity
             listsen_cov_sen[i] = sentence
         listsen_cov_polp = {}
         listsen_cov_senp = {}
-        for i in word_freq_dict.keys():
+        for i in blob.keys():
             polarity = -1
-            for j in range(len(word_freq_dict[i].sentences)):
-                if word_freq_dict[i].sentences[j].sentiment.polarity > polarity:
-                    polarity = word_freq_dict[i].sentences[j].sentiment.polarity
-                    sentence = word_freq_dict[i].sentences[j]
+            for j in range(len(blob[i].sentences)):
+                if blob[i].sentences[j].sentiment.polarity > polarity:
+                    polarity = blob[i].sentences[j].sentiment.polarity
+                    sentence = blob[i].sentences[j]
             listsen_cov_polp[i] = polarity
             listsen_cov_senp[i] = sentence
         covsen = {}
-        for i in word_freq_dict.keys():
-            covsen[i] = word_freq_dict[i].sentiment.polarity
-        covlistsen = listsen_cov_pol.items()
-        covlistsen = sorted(covlistsen)
-        return covlistsen, listsen_cov_polp, covsen
+        for i in blob.keys():
+            covsen[i] = blob[i].sentiment.polarity
+        return listsen_cov_pol, listsen_cov_polp, covsen
 
 
 class NVVisualizations:
@@ -519,10 +523,12 @@ class NVVisualizations:
             results[i] = app_temp
         return results
 
-    def sentiment_plot(covlistsen, listsen_cov_polp, covsen, save_path):
+    def sentiment_plot(listsen_cov_pol, listsen_cov_polp, covsen, save_path):
         """
         Plot sentiment analysis and save.
         """
+        covlistsen = listsen_cov_pol.items()
+        covlistsen = sorted(covlistsen)
         x1, y1 = zip(*covlistsen)
         covlistsenp = listsen_cov_polp.items()
         covlistsenp = sorted(covlistsenp)
