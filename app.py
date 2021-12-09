@@ -3,24 +3,26 @@ LegTextScraper Plotly Dash Dashboard
 """
 import base64
 
-import json
 import dash
-from dash import html
 import dash_bootstrap_components as dbc
+from dash import html
 from dash import dcc
 from dash.dependencies import Input, Output
 
-from LegTextScraper import dashboard_helper
+from statelegiscraper import dashboard_helper
 
 app = dash.Dash(__name__,
                 external_stylesheets=["https://codepen.io/chriddyp/pen/bWLwgP.css",
                                       {'href': "https://codepen.io/chriddyp/pen/bWLwgP.css",
                                        'rel': 'stylesheet'}])
-colors = {"background": "#F3F6FA", "background_div": "#DFDDDF", 'text': '#009999'}
+
+##########################################
+# App Layout
+##########################################
 
 
 def create_card(card_id, title):
-    image_filename = 'data//hhs_analysis//April.png'
+    image_filename = 'data//dashboard//plots//hhs_April.png'
     encoded_image = base64.b64encode(open(image_filename, 'rb').read()).decode('ascii')
     return dbc.Card(
         dbc.CardBody(
@@ -36,6 +38,7 @@ def create_card(card_id, title):
     )
 
 
+colors = {"background": "#F3F6FA", "background_div": "#DFDDDF", 'text': '#009999'}
 app.layout = html.Div(style={'backgroundColor': colors['background']}, children=[
     html.H1('Legislature Text Scraper', style={
         'textAlign': 'center',
@@ -111,13 +114,11 @@ app.layout = html.Div(style={'backgroundColor': colors['background']}, children=
         'margin-top': '6vw',
     }),
 
-    # first column
     html.Div(children=[
         create_card('11', 'Title')
     ], style={'display': 'inline-block', 'vertical-align': 'top', 'margin-left': '6vw', 'margin-top': '3vw',
               'margin-bottom': '6vw', }),
 
-    # second column
     html.Div(children=[
         create_card('22', 'Title')
     ], style={'display': 'inline-block', 'vertical-align': 'top', 'margin-left': '6vw', 'margin-top': '3vw',
@@ -126,18 +127,26 @@ app.layout = html.Div(style={'backgroundColor': colors['background']}, children=
 ])
 
 
+##########################################
+# Interactive Parts
+##########################################
+
+
 def create_wordcloud(card_id, title, key_words, file_name):
-    image_path = 'dashboard//wordcloud//' + file_name
+    """Takes word cloud plot and keywords. Generate a Card component"""
+    image_path = 'data//dashboard//plots//' + file_name
     encoded_image = base64.b64encode(open(image_path, 'rb').read()).decode('ascii')
     return dbc.Card(
         dbc.CardBody(
             [
                 html.H4(title, id=f"{card_id}-title"),
                 html.H6("Keywords: " + ", ".join(key_words)),
-                html.Img(src='data:image/png;base64,{}'.format(encoded_image), style={'height':'80%', 'width':'80%'})
+                html.Img(src='data:image/png;base64,{}'.format(encoded_image),
+                         style={'height': '100%', 'width': '100%'})
             ]
         )
     )
+
 
 @app.callback(
     Output('div_variable', 'children'),
@@ -146,45 +155,56 @@ def create_wordcloud(card_id, title, key_words, file_name):
     Input('query', 'value'),
 )
 def update_div(num_div, file, query):
+    """Takes committee, time, and topic. Run semantic searching, text processing and analysis.
+    Update the Content Analysis part of the web."""
+    # Read in data
     if file == "HHS":
-        data_by_date = dashboard_helper.NVHelper.nv_extract_date("data//hhs_analysis//cleaned_data.json")
-        file_dict = open("data//hhs_analysis//hhs_nv_filter.json", 'r', encoding='utf-8')
-        filtered_dict = json.load(file_dict)
+        data_by_date = dashboard_helper.NVHelper.nv_extract_date("data//dashboard//nv_hhs_analysis//cleaned_data.json")
     elif file == 'FIN':
-        data_by_date = dashboard_helper.NVHelper.nv_extract_date("data//fin_analysis//cleaned_data.json")
-        file_dict = open("data//fin_analysis//hhs_nv_filter.json", 'r', encoding='utf-8')
-        filtered_dict = json.load(file_dict)
+        data_by_date = dashboard_helper.NVHelper.nv_extract_date("data//dashboard//nv_fin_analysis//cleaned_data.json")
     else:
-        data_by_date = dashboard_helper.NVHelper.nv_extract_date("data//hhs_analysis//cleaned_data.json")
+        data_by_date = {}
 
+    # Semantic searching
     sm_search = dashboard_helper.NVSemanticSearching(data_by_date, query, 5)
-    # filtered_dict = sm_search.rapid_searching("data//hhs_data//")
+    if file == "HHS":
+        filtered_dict = sm_search.rapid_searching("data//dashboard//nv_hhs_analysis//")
+    elif file == 'FIN':
+        filtered_dict = sm_search.rapid_searching("data//dashboard//nv_fin_analysis//")
+    else:
+        filtered_dict = {}
 
+    # Text cleaning
     text_preprocessing = dashboard_helper.NVTextProcessing(filtered_dict)
     text_preprocessing.text_processing()
     processed_dict = text_preprocessing.json
 
-    word_freq_month = {}
+    # Organize the data by the month
+    data_by_month = {}
     for i in processed_dict.keys():
         month = i[:2]
-        if month not in word_freq_month:
-            word_freq_month[month] = processed_dict[i]
+        if month == '06' or month == '09':
+            continue
+        if month not in data_by_month:
+            data_by_month[month] = processed_dict[i]
         else:
-            word_freq_month[month].extend(processed_dict[i])
+            data_by_month[month].extend(processed_dict[i])
 
-    analysis_freq = dashboard_helper.NVTextAnalysis(word_freq_month)
+    # Analysis: word frequency, tf-idf for key word extraction
+    analysis_freq = dashboard_helper.NVTextAnalysis(data_by_month)
     _, word_freq = analysis_freq.word_frequency()
-    _, word_key = analysis_freq.key_word_by_month()
+    _, word_key = analysis_freq.tf_idf_analysis()
 
+    # Visualization: save word cloud plots, generate yop key words
     month = {'05': 'May', '04': 'April', '03': 'March', '02': 'February', '01': 'January', }
-    for i in range(num_div[0], num_div[1]+1):
-        dashboard_helper.NVVisualizations.word_cloud(word_freq[str(i).zfill(2)], "dashboard//wordcloud//", str(i).zfill(2))
+    for i in range(num_div[0], num_div[1] + 1):
+        dashboard_helper.NVVisualizations.word_cloud(word_freq[str(i).zfill(2)], "data//dashboard//plots//", str(i).zfill(2))
     results = dashboard_helper.NVVisualizations.key_word_display(word_key, 4)
 
     return [html.Div(children=[
-            create_wordcloud(f'{i}', month[str(i).zfill(2)], results[str(i).zfill(2)], str(i).zfill(2) + '.png')
-        ], style={'display': 'inline-block', 'vertical-align': 'top', 'margin-left': '6vw', 'margin-top': '3vw'}
-        ) for i in range(num_div[0], num_div[1]+1)]
+        create_wordcloud(f'{i}', month[str(i).zfill(2)], results[str(i).zfill(2)], str(i).zfill(2) + '.png')
+    ], style={'display': 'inline-block', 'vertical-align': 'top', 'margin-left': '6vw', 'margin-top': '3vw'}
+    ) for i in range(num_div[0], num_div[1] + 1)]
 
 
 if __name__ == '__main__':
