@@ -338,8 +338,34 @@ class NVTextAnalysis:
         sorted_dict = self.__sort_dict(dict_by_month)
         return dict_by_month, sorted_dict
 
-    def sentiment_analysis(self):
-        return
+    def sentiment_analysis(word_freq_dict):
+        listsen_cov_pol={}
+        listsen_cov_sen={}
+        for i in word_freq_dict.keys():
+            polarity=1
+            for j in range(len(word_freq_dict[i].sentences)):
+                if word_freq_dict[i].sentences[j].sentiment.polarity<polarity:
+                    polarity=word_freq_dict[i].sentences[j].sentiment.polarity
+                    sentence=word_freq_dict[i].sentences[j]
+            listsen_cov_pol[i]=polarity
+            listsen_cov_sen[i]=sentence
+        listsen_cov_polp={}
+        listsen_cov_senp={}
+        for i in word_freq_dict.keys():
+            polarity=-1
+            for j in range(len(word_freq_dict[i].sentences)):
+                if word_freq_dict[i].sentences[j].sentiment.polarity>polarity:
+                    polarity=word_freq_dict[i].sentences[j].sentiment.polarity
+                    sentence=word_freq_dict[i].sentences[j]
+            listsen_cov_polp[i]=polarity
+            listsen_cov_senp[i]=sentence
+        covsen={}
+        for i in word_freq_dict.keys():
+            covsen[i]=word_freq_dict[i].sentiment.polarity
+        covlistsen = listsen_cov_pol.items()
+        covlistsen = sorted(covlistsen)
+        return covlistsen, listsen_cov_polp, covsen
+
 
 class NVVisualizations:
 
@@ -362,6 +388,19 @@ class NVVisualizations:
             results[i] = app_temp
         return results
 
-    def sentiment_plot(self):
-        return
+    def sentiment_plot(covlistsen, listsen_cov_polp, covsen, save_path):
+        x1,y1 = zip(*covlistsen)
+        covlistsenp = listsen_cov_polp.items()
+        covlistsenp = sorted(covlistsenp)
+        x2,y2 = zip(*covlistsenp)
+        covsensen = covsen.items()
+        covsensen = sorted(covsensen)
+        x3,y3 = zip(*covsensen)
+        plt.plot(x1,y1)
+        plt.plot(x2,y2)
+        plt.plot(x3,y3)
+        plt.legend(['Lowest', 'Highest', 'Ave']) #label the line
+        plt.savefig(save_path + 'sentiment.png', bbox_inches='tight', pad_inches=0)
+        
+        
 
