@@ -25,6 +25,7 @@ However, each of the 50 state legislatures have vastly different websites and pu
 ├── doc
 ├── examples
 ├── statelegiscraper
+│   ├── assets
 │   ├── states
 │   ├── test
 │   └── dashboard_helper.py
@@ -35,11 +36,24 @@ However, each of the 50 state legislatures have vastly different websites and pu
  ```
 The `statelegiscraper` directory includes a `states` module, unit tests in `test`, and a `dashboard_helper` function script. Data relevant to dashboard and the states module are included in `data` directory. The `examples` directory provides example Jupyter notebooks that can help new users learn the ways StateLegiscraper organize scraping and processing. A Plotly Dash dashboard can run locally through the `app.py` file (see [Dashboard](https://github.com/ka-chang/StateLegiscraper/blob/main/README.md#dashboard) section below for details.
 
+## Installation
+
+StateLegiscraper is installed using the command line and is best used with a virtual environment due to its dependencies.
+
+1. Open your choice of terminal (e.g., Terminal (MacOS) or [Ubuntu 20.04 LTS](https://www.microsoft.com/en-us/p/ubuntu-2004-lts/9n6svws3rx71?activetab=pivot:overviewtab) (Windows))
+2. Clone the repoistory using `git clone https://github.com/ka-chang/StateLegiscraper.git`
+3. Change to the StateLegiscraper directory using `cd StateLegiscraper`
+4. Set up a new virtual environment with all necessary packages and their dependencies using `conda env create -f environment.yml`
+5. Activate the statelegiscraper virtual environment with `conda activate statelegiscraper`
+6. Deactivate the statelegiscraper virtual environment with `conda deactivate statelegiscraper`
+
 ## Requirements
 
-StateLegiscraper primarily uses a Python-based web browser automation tool, [Selenium](https://www.selenium.dev), to conduct webscraping. This requires a specific browser and browser driver to work properly. The package is built using Google Chrome.
+### Google Chrome and Chrome Driver
 
-- Python = 3.7
+StateLegiscraper's webscraping tool uses a Python-based web browser automation tool, [Selenium](https://www.selenium.dev). This requires a specific browser and browser driver to work properly. The package is built using Google Chrome.
+
+- Python = 3.9
 - [Google Chrome](https://www.google.com/chrome/)  
 - [Chrome Driver](https://chromedriver.chromium.org/downloads)
 
@@ -51,18 +65,17 @@ To check your installed Chrome version and to download the appropriate Chrome Dr
 
 <img src="doc/images/readme_chrome.png">
 
-5. Find the [Chrome Driver](https://chromedriver.chromium.org/downloads) that corresponds to your version and save it to your local drive
+5. Find the [Chrome Driver](https://chromedriver.chromium.org/downloads) that corresponds to your version and save it to your local drive. We recommend saving it within the cloned repository directory `statelegiscraper/assets` for organizational purposes.
 
-## Installation
+### DeepSpeech Model Files
 
-StateLegiscraper is installed using the command line and is best used with a virtual environment due to its dependencies.
+StateLegiscraper uses an open-source speech-to-text engine called [DeepSpeech](https://github.com/mozilla/DeepSpeech/) to process audio files to text transcripts. DeepSpeech requires acoustic models to run, which StateLegiscraper's audio_to_text functions require. You can read more about DeepSpeech's acoustic models in their release notes [published here](https://github.com/mozilla/DeepSpeech/releases/tag/v0.9.3).
 
-1. Open your choice of terminal (e.g., Terminal (MacOS) or [Ubuntu 20.04 LTS](https://www.microsoft.com/en-us/p/ubuntu-2004-lts/9n6svws3rx71?activetab=pivot:overviewtab) (Windows))
-2. Clone the repoistory using `git clone https://github.com/ka-chang/StateLegiscraper.git`
-3. Change to the StateLegiscraper repository using `cd StateLegiscraper`
-4. Set up a new virtual environment using `conda create –n statelegiscraper python=3.7`
-5. Activate the statelegiscraper virtual environment with `conda activate statelegiscraper`
-6. Install package requirements using `pip3 install –r requirements.txt`
+To download DeepSpeech's v.0.9.3 models and v.0.9.3 model scorer, follow these instructions in your terminal of choice:
+
+1. Navigate the the assets folder in the statelegiscraper package using `cd statelegiscraper/assets`.
+2. Download the DeepSpeech's v.0.9.3 models into the assets directory using `curl -o https://github.com/mozilla/DeepSpeech/releases/download/v0.9.3/deepspeech-0.9.3-models.pbmm`
+3. Download the DeepSpeech's v.0.9.3 model scorer into the assets directory using `curl -o https://github.com/mozilla/DeepSpeech/releases/download/v0.9.3/deepspeech-0.9.3-models.scorer`
 
 ## Usage
 
