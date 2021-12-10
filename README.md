@@ -1,4 +1,4 @@
-# <img src= "doc/images/statelegiscraper_logo.png"></img> StateLegiscraper 
+# <img src= "doc/images/statelegiscraper_logo.png" height="60"></img> StateLegiscraper 
 
 <img src="doc/images/readme_map/readme_map.png" height="200" width="350" align=right></img>
 
@@ -98,3 +98,5 @@ If you'd like to expand StateLegiscraper to other states, use the data to add to
 
 ## Acknowledgements
 Many thanks to Dr. David Beck and Anant Mittal from the University of Washington for their support, guidance, and feedback in the development of this package.
+
+StateLegiscraper logo adapted from [Icon8](https://icons8.com/icons/authors/zkUJRGwffdqs/wanicon/external-wanicon-lineal-wanicon) icons.
