@@ -3,8 +3,8 @@ WA module for scraping and processing text from https://leg.wa.gov
 
 # Status
 
-Current Coverage:
-    [X] Committee Hearings (Audio Links) (2015 - 2020)
+Current Coverage (In Active Development):
+    [ ] Committee Hearings (Audio Links) (2015 - 2020)
 
 Planned Coverage:
     [ ] Committee Hearings (Video Links) (2000 - 2014)
@@ -278,13 +278,14 @@ driver.close()
         
         return(mp3_files)
 
+#### WORK IN PROGRESS
 
 class NVProcess:
     """
     """
     def wa_speech_to_text(weblinks_mp3):
         """
-        Function gives the user option to convert audio file to a text transcript through DeepSpeech
+        Function gives the user option to convert audio file to a text transcript through DeepSpeech package
 
         Parameters
         ----------
@@ -297,31 +298,36 @@ class NVProcess:
 
         """
     
-        import git 
-        import webrtcvad
+#STEP 1: Convert mp3 file to wav, 1600 frame rate, mono channel
         
-        ## OPTION TO CONVERT VIA PYTHON PACKAGE
-        #from pydub import AudioSegment
-        #os.chdir("/Users/katherinechang/Downloads") 
-        #audio_org = "071722fb938c8e0a87505936941971725631c303_audio.mp3"
-        #audio_wav = "wa_house_ed_2_20_21.wav"
-        #sound = AudioSegment.from_mp3(audio_org)
-        #sound.export(audio_wav, format="wav")
-        
-        audio_org = "071722fb938c8e0a87505936941971725631c303_audio.mp3" #weblinks_mp3
+        from pydub import AudioSegment
+        os.chdir("/Users/katherinechang/Downloads") #Location of the saved mp3
+        audio_org = "071722fb938c8e0a87505936941971725631c303_audio.mp3"
         audio_wav = "wa_house_ed_2_20_21.wav"
+        sound = AudioSegment.from_mp3(audio_org)
+        sound.export(audio_wav, format="wav")
+        new_sound = sound.set_frame_rate(16000).set_channels(1)
+        
+        ## ISSUE: Converting to wav ends up with a large file size. Do it one at a time and then delete? Save the MP3s all together
+        
+        #audio_org = "071722fb938c8e0a87505936941971725631c303_audio.mp3" #weblinks_mp3
+        #audio_wav = "wa_house_ed_2_20_21.wav"
         
         #---QUESTION: Best practices of running command line as part of functions? 
         #---QUESTION: HOW TO CALL VARIABLES TO CLI
         #!ffmpeg -i audio_org  -ar 16000 -ac 1  audio_wav
-        !ffmpeg -i 071722fb938c8e0a87505936941971725631c303_audio.mp3  -ar 16000 -ac 1 wa_house_ed_2_20_21.wav
-        
-        !git clone "https://github.com/mozilla/DeepSpeech-examples.git"
+        #!ffmpeg -i 071722fb938c8e0a87505936941971725631c303_audio.mp3  -ar 16000 -ac 1 wa_house_ed_2_20_21.wav
+
+#STEP 2: Run DeepSpeech for each converted wav file and save transcript in new output folder
+#Model and vad_transcriber saved in statelegiscraper/assets 
+#Depending on length, can run 15+ minutes per audio file. Should we do it one by one?
 
         start = time.time()
-        !python3 DeepSpeech-examples/vad_transcriber/audioTranscript_cmd.py --aggressive 1 --audio wa_house_ed_2_20_21.wav --model ./
+        !python3 DeepSpeech/vad_transcriber/audioTranscript_cmd.py --aggressive 1 --audio wa_house_ed_2_20_21.wav --model ./
         end = time.time()
         print("Total time: {:.2f}".format(end-start))
+
+#STEP 3: Check to make sure .txt is saved
         
 
     def wa_text_clean(transcript):

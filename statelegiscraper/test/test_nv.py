@@ -1,5 +1,4 @@
 """
-
 UNIT TEST NOTES
 
 K NOTES (11/8):
@@ -13,28 +12,14 @@ K NOTES (11/8):
   - If there's a file that's NOT a PDF in the folder, it throws an error. Need to add functionality to check if the file is a PDF, and if not, then to skip it
   - Saves file not as established by json_name, but nv_leg_committee instead
   - Need to clean up directory names so they're generalizable/universal to users
-
-ed_test=["https://www.leg.state.nv.us/App/NELIS/REL/81st2021/Committee/342/Meetings"]
-chrome_webdriver="/Volumes/GoogleDrive/My Drive/2021/Fall 2021/CSE583/project/chromedriver"
-save_folder="/Volumes/GoogleDrive/My Drive/2021/Fall 2021/CSE583/project/toy"
-
-pdf_folder="/Volumes/GoogleDrive/My Drive/2021/Fall 2021/CSE583/project/toy/" #need / at the end of folder here
-json_name = "/Volumes/GoogleDrive/My Drive/2021/Fall 2021/CSE583/project/toy/nv_ed.json"
-
-nv_scrape(ed_test, chrome_webdriver, save_folder)
-nv_pdftotext(pdf_folder, json_name)
-
-with open("/Users/katherinechang/nv_leg_committee.json") as leg_json:
-    committee_dict = json.load(leg_json)
-
 """
 
+import json
 import os
-import sys
 import unittest
 
-from statelegiscraper.states.nv import NVScrape
-from statelegiscraper.states.nv import NVProcess
+from statelegiscraper.states.nv import Process
+from statelegiscraper.states.nv import Scrape
 
 # Test Data
 
@@ -42,12 +27,13 @@ test_sen_ed = [
     "https://www.leg.state.nv.us/App/NELIS/REL/81st2021/Committee/342/Meetings",
     "https://www.leg.state.nv.us/App/NELIS/REL/80th2019/Committee/216/Meetings"]
 
-test_chrome_webdriver = "test/chromedriver_m1"
+test_chrome_webdriver = "statelegiscraper/assets/chromedriver/chromedriver_v96_m1"
 
-test_save_folder = "test/outputs"
+test_save_folder = "statelegiscraper/test/outputs/"
 
+# Unit tests by class
 
-class TestNVScrape(unittest.TestCase):
+class TestScrape(unittest.TestCase):
     """
     Class of unittests for states.nv module, NVScrape class
 
@@ -60,22 +46,23 @@ class TestNVScrape(unittest.TestCase):
 
     """
 
-    def test_nv_scrape_pdf(
-            test_sen_ed, test_chrome_webdriver, test_save_folder):
+    def test_nv_scrape_pdf(self):
         """
         Scrape PDF using the nv_scrape_pdf function
         using test_chrome_webdriver in repo and saving outputs locally in test/outputs
         """
-        nv_scrape_pdf(test_sen_ed, test_chrome_webdriver, test_save_folder)
+        Scrape.nv_scrape_pdf(test_sen_ed, test_chrome_webdriver, test_save_folder)
+        test_save_folder_list = os.listdir(test_save_folder)
+        #test_save_folder_filenum = len(test_save_folder_list)
         assert isinstance(test_sen_ed, list)
+        assert len(test_save_folder_list) > 0 # check to make sure there are files in the output folder
+        self.assertTrue(True)
+        
         # assert isinstance(test_chrome_webdriver, ) #how to check it's a valid
         # chromedriver?
-        # Check number of files in the output folder to ensure it's the right
-        # number of files
-        assert len(test_save_folder) > 0
 
 
-class TestNVProcess(unittest.TestCase):
+class TestProcess(unittest.TestCase):
     """
     Class of unittests for states.nv module, NVProcess class
 
@@ -83,17 +70,27 @@ class TestNVProcess(unittest.TestCase):
     nv_text_clean
     """
 
-    def test_nv_pdf_to_text(dir_load, nv_json_name):
+    def test_nv_pdf_to_text(self):
         """
         Taking output PDFs and converting them to text
         """
-        nv_pdf_to_text(dir_load, nv_json_name)
-        assert len(dir_load) > 0  # check to make sure the
-        assert isinstance(nv_json_name, dict)
+        test_nv_json_path = os.path.join(test_save_folder, "test_nv_json.json")  
+        test_save_folder_list = os.listdir(test_save_folder)
+        assert len(test_save_folder_list) > 0  # check to make sure there are files in the 
+        
+        Process.nv_pdf_to_text(test_save_folder, test_nv_json_path)
+        
+        test_file_path = open(test_nv_json_path,)
+        test_nv_dict = json.load(test_file_path)
+        
+        assert isinstance(test_nv_dict, dict)
+        self.assertTrue(True)
 
-    def test_nv_text_clean(nv_json_path):
-        """
-        JSON
-        """
-        nv_text_clean(nv_json_path, trim=None)
-        assert isinstance(data, dict)
+
+#    def test_nv_text_clean(self):
+#       """
+#        JSON
+#        """
+#        Process.nv_text_clean(nv_json_path, trim=None)
+#        assert isinstance(data, dict)
+#        self.assertTrue(True)
