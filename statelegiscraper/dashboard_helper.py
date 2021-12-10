@@ -491,52 +491,48 @@ class NVVisualizations:
         return results
   
 def sentiment_analysis(filter_m,save_path):
-        """
-        Sentiment analysis on self.json.
-        """
-        blob={}
-        for i in filter_m.keys():
-            blob[i] = TextBlob(' '.join(filter_m[i]))
-        listsen_cov_pol = {}
-        listsen_cov_sen = {}
-        for i in blob.keys():
-            polarity = 1
-            for j in range(len(blob[i].sentences)):
-                if blob[i].sentences[j].sentiment.polarity < polarity:
-                    polarity = blob[i].sentences[j].sentiment.polarity
-                    sentence = blob[i].sentences[j]
-            listsen_cov_pol[i] = polarity
-            listsen_cov_sen[i] = sentence
-        listsen_cov_polp = {}
-        listsen_cov_senp = {}
-        for i in blob.keys():
-            polarity = -1
-            for j in range(len(blob[i].sentences)):
-                if blob[i].sentences[j].sentiment.polarity > polarity:
-                    polarity = blob[i].sentences[j].sentiment.polarity
-                    sentence = blob[i].sentences[j]
-            listsen_cov_polp[i] = polarity
-            listsen_cov_senp[i] = sentence
-        covsen = {}
-        for i in blob.keys():
-            covsen[i] = blob[i].sentiment.polarity
-        return listsen_cov_pol, listsen_cov_polp, covsen
-    def sentiment_plot(listsen_cov_pol, listsen_cov_polp, covsen, save_path):
-        """
-        Plot sentiment analysis and save.
-        """
-        covlistsen = listsen_cov_pol.items()
-        covlistsen = sorted(covlistsen)
-        x1, y1 = zip(*covlistsen)
-        covlistsenp = listsen_cov_polp.items()
-        covlistsenp = sorted(covlistsenp)
-        x2, y2 = zip(*covlistsenp)
-        covsensen = covsen.items()
-        covsensen = sorted(covsensen)
-        x3, y3 = zip(*covsensen)
-        plt.plot(x1, y1)
-        plt.plot(x2, y2)
-        plt.plot(x3, y3)
-        plt.legend(['Lowest', 'Highest', 'Ave'])  # label the line
-        plt.savefig(save_path + 'sentiment.png', bbox_inches='tight', pad_inches=0)
+    
+    """
+    Sentiment analysis on self.json.
+    """
+    blob={}
+    for i in filter_m.keys():
+        blob[i] = TextBlob(' '.join(filter_m[i]))
+    listsen_cov_pol = {}
+    listsen_cov_sen = {}
+    for i in blob.keys():
+        polarity = 1
+        for j in range(len(blob[i].sentences)):
+            if blob[i].sentences[j].sentiment.polarity < polarity:
+                polarity = blob[i].sentences[j].sentiment.polarity
+                sentence = blob[i].sentences[j]
+        listsen_cov_pol[i] = polarity
+        listsen_cov_sen[i] = sentence
+    listsen_cov_polp = {}
+    listsen_cov_senp = {}
+    for i in blob.keys():
+        polarity = -1
+        for j in range(len(blob[i].sentences)):
+            if blob[i].sentences[j].sentiment.polarity > polarity:
+                polarity = blob[i].sentences[j].sentiment.polarity
+                sentence = blob[i].sentences[j]
+        listsen_cov_polp[i] = polarity
+        listsen_cov_senp[i] = sentence
+    covsen = {}
+    for i in blob.keys():
+        covsen[i] = blob[i].sentiment.polarity
+    covlistsen = listsen_cov_pol.items()
+    covlistsen = sorted(covlistsen)
+    x1, y1 = zip(*covlistsen)
+    covlistsenp = listsen_cov_polp.items()
+    covlistsenp = sorted(covlistsenp)
+    x2, y2 = zip(*covlistsenp)
+    covsensen = covsen.items()
+    covsensen = sorted(covsensen)
+    x3, y3 = zip(*covsensen)
+    plt.plot(x1, y1)
+    plt.plot(x2, y2)
+    plt.plot(x3, y3)
+    plt.legend(['Lowest', 'Highest', 'Ave'])  # label the line
+    plt.savefig(save_path + 'sentiment.png', bbox_inches='tight', pad_inches=0)
 
