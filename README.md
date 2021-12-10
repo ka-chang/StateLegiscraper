@@ -1,6 +1,6 @@
-# StateLegiscraper 
+# <img src= "doc/images/statelegiscraper_logo.png"></img> StateLegiscraper 
 
-<img src="doc/readme_map/readme_map.png" height="200" width="350" align=right>
+<img src="doc/images/readme_map/readme_map.png" height="200" width="350" align=right></img>
 
 A text webscraping tool for U.S. state legislature websites, with options for speech-to-text generated transcripts and public-facing example dashboards that include basic text analysis on specific policy areas.
 
@@ -31,8 +31,7 @@ However, each of the 50 state legislatures have vastly different websites and pu
 ├── LICENSE
 ├── README.md
 ├── app.py
-├── environment.yml
-└── requirements.txt
+└── environment.yml
  ```
 The `statelegiscraper` directory includes a `states` module, unit tests in `test`, and a `dashboard_helper` function script. Data relevant to dashboard and the states module are included in `data` directory. The `examples` directory provides example Jupyter notebooks that can help new users learn the ways StateLegiscraper organize scraping and processing. A Plotly Dash dashboard can run locally through the `app.py` file (see [Dashboard](https://github.com/ka-chang/StateLegiscraper/blob/main/README.md#dashboard) section below for details.
 
@@ -50,7 +49,7 @@ To check your installed Chrome version and to download the appropriate Chrome Dr
 3. Navigate down to Help > About Google Chrome
 4. Your Google Chrome version is listed on the top of the page. For example:
 
-<img src="doc/readme_chrome.png">
+<img src="doc/images/readme_chrome.png">
 
 5. Find the [Chrome Driver](https://chromedriver.chromium.org/downloads) that corresponds to your version and save it to your local drive
 
