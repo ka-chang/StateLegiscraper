@@ -107,7 +107,7 @@ app.layout = html.Div(style={'backgroundColor': colors['background']}, children=
     }),
 
     html.Div(id='div_variable'),
-
+    html.Div(id='div_variable2'),
     html.H3("Sentiment analysis", style={
         'textAlign': 'left',
         'margin-left': '6vw',
@@ -150,6 +150,7 @@ def create_wordcloud(card_id, title, key_words, file_name):
 
 @app.callback(
     Output('div_variable', 'children'),
+    Output('div_variable2', 'children'),
     [Input('slider', 'value')],
     Input('committee', 'value'),
     Input('query', 'value'),
@@ -204,7 +205,14 @@ def update_div(num_div, file, query):
     return [html.Div(children=[
         create_wordcloud(f'{i}', month[str(i).zfill(2)], results[str(i).zfill(2)], str(i).zfill(2) + '.png')
     ], style={'display': 'inline-block', 'vertical-align': 'top', 'margin-left': '6vw', 'margin-top': '3vw'}
-    ) for i in range(num_div[0], num_div[1] + 1)]
+    ) for i in range(num_div[0], num_div[1] + 1)],[html.H3("Sentiment analysis", style={
+        'textAlign': 'left',
+        'margin-left': '6vw',
+        'margin-top': '6vw',
+    }),html.Div(children=[
+        create_card('11', 'Title')
+    ], style={'display': 'inline-block', 'vertical-align': 'top', 'margin-left': '6vw', 'margin-top': '3vw',
+              'margin-bottom': '6vw', })]
 
 
 if __name__ == '__main__':
