@@ -449,40 +449,7 @@ class NVTextAnalysis:
         sorted_dict = self.__sort_dict(dict_by_month)
         return dict_by_month, sorted_dict
 
-    def sentiment_analysis(self):
-        """
-        Sentiment analysis on self.json.
-        """
-        with open('filtered_sentences_hhs.json', 'r') as file:
-              filter_m= json.load(file)
-        blob={}
-        for i in filter_m.keys():
-            blob[i] = TextBlob(' '.join(filter_m[i]))
-        listsen_cov_pol = {}
-        listsen_cov_sen = {}
-        for i in blob.keys():
-            polarity = 1
-            for j in range(len(blob[i].sentences)):
-                if blob[i].sentences[j].sentiment.polarity < polarity:
-                    polarity = blob[i].sentences[j].sentiment.polarity
-                    sentence = blob[i].sentences[j]
-            listsen_cov_pol[i] = polarity
-            listsen_cov_sen[i] = sentence
-        listsen_cov_polp = {}
-        listsen_cov_senp = {}
-        for i in blob.keys():
-            polarity = -1
-            for j in range(len(blob[i].sentences)):
-                if blob[i].sentences[j].sentiment.polarity > polarity:
-                    polarity = blob[i].sentences[j].sentiment.polarity
-                    sentence = blob[i].sentences[j]
-            listsen_cov_polp[i] = polarity
-            listsen_cov_senp[i] = sentence
-        covsen = {}
-        for i in blob.keys():
-            covsen[i] = blob[i].sentiment.polarity
-        return listsen_cov_pol, listsen_cov_polp, covsen
-
+    
 
 class NVVisualizations:
     """
@@ -522,7 +489,38 @@ class NVVisualizations:
             app_temp = [word[0] for word in temp if word[0] not in stop_words]
             results[i] = app_temp
         return results
-
+  
+def sentiment_analysis(filter_m,save_path):
+        """
+        Sentiment analysis on self.json.
+        """
+        blob={}
+        for i in filter_m.keys():
+            blob[i] = TextBlob(' '.join(filter_m[i]))
+        listsen_cov_pol = {}
+        listsen_cov_sen = {}
+        for i in blob.keys():
+            polarity = 1
+            for j in range(len(blob[i].sentences)):
+                if blob[i].sentences[j].sentiment.polarity < polarity:
+                    polarity = blob[i].sentences[j].sentiment.polarity
+                    sentence = blob[i].sentences[j]
+            listsen_cov_pol[i] = polarity
+            listsen_cov_sen[i] = sentence
+        listsen_cov_polp = {}
+        listsen_cov_senp = {}
+        for i in blob.keys():
+            polarity = -1
+            for j in range(len(blob[i].sentences)):
+                if blob[i].sentences[j].sentiment.polarity > polarity:
+                    polarity = blob[i].sentences[j].sentiment.polarity
+                    sentence = blob[i].sentences[j]
+            listsen_cov_polp[i] = polarity
+            listsen_cov_senp[i] = sentence
+        covsen = {}
+        for i in blob.keys():
+            covsen[i] = blob[i].sentiment.polarity
+        return listsen_cov_pol, listsen_cov_polp, covsen
     def sentiment_plot(listsen_cov_pol, listsen_cov_polp, covsen, save_path):
         """
         Plot sentiment analysis and save.
