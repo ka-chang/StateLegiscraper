@@ -8,7 +8,11 @@ import dash_bootstrap_components as dbc
 from dash import html
 from dash import dcc
 from dash.dependencies import Input, Output
-
+'''
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+'''
 from statelegiscraper import dashboard_helper
 
 app = dash.Dash(__name__,
@@ -21,15 +25,15 @@ app = dash.Dash(__name__,
 ##########################################
 
 
-def create_card(card_id, title):
-    image_filename = 'data//dashboard//plots//hhs_April.png'
+def create_card(card_id, title,file_name):
+    image_filename = 'data//dashboard//plots//'+file_name
     encoded_image = base64.b64encode(open(image_filename, 'rb').read()).decode('ascii')
     return dbc.Card(
         dbc.CardBody(
             [
                 # html.Div(style={'backgroundColor': colors['background_div']}, children=[
                 html.H4(title, id=f"{card_id}-title"),
-                html.H6("100", id=f"{card_id}-value"),
+                #html.H6("100", id=f"{card_id}-value"),
                 html.Img(src='data:image/png;base64,{}'.format(encoded_image))
                 # ]
                 # )
@@ -108,21 +112,9 @@ app.layout = html.Div(style={'backgroundColor': colors['background']}, children=
 
     html.Div(id='div_variable'),
     html.Div(id='div_variable2'),
-    html.H3("Sentiment analysis", style={
-        'textAlign': 'left',
-        'margin-left': '6vw',
-        'margin-top': '6vw',
-    }),
+   
 
-    html.Div(children=[
-        create_card('11', 'Title')
-    ], style={'display': 'inline-block', 'vertical-align': 'top', 'margin-left': '6vw', 'margin-top': '3vw',
-              'margin-bottom': '6vw', }),
-
-    html.Div(children=[
-        create_card('22', 'Title')
-    ], style={'display': 'inline-block', 'vertical-align': 'top', 'margin-left': '6vw', 'margin-top': '3vw',
-              'margin-bottom': '6vw', }),
+    
 
 ])
 
@@ -175,33 +167,37 @@ def update_div(num_div, file, query):
     else:
         filtered_dict = {}
 
-    # Text cleaning
-    text_preprocessing = dashboard_helper.NVTextProcessing(filtered_dict)
-    text_preprocessing.text_processing()
-    processed_dict = text_preprocessing.json
-
     # Organize the data by the month
     data_by_month = {}
-    for i in processed_dict.keys():
+    for i in filtered_dict.keys():
         month = i[:2]
         if month == '06' or month == '09':
             continue
         if month not in data_by_month:
-            data_by_month[month] = processed_dict[i]
+            data_by_month[month] = filtered_dict[i]
         else:
-            data_by_month[month].extend(processed_dict[i])
+            data_by_month[month].extend(filtered_dict[i])
+    dashboard_helper.sentiment_analysis(data_by_month,'data//dashboard//plots//')
+
+    # Text cleaning
+    text_preprocessing = dashboard_helper.NVTextProcessing(data_by_month)
+    text_preprocessing.text_processing()
+    processed_dict = text_preprocessing.json
 
     # Analysis: word frequency, tf-idf for key word extraction
-    analysis_freq = dashboard_helper.NVTextAnalysis(data_by_month)
+    analysis_freq = dashboard_helper.NVTextAnalysis(processed_dict)
     _, word_freq = analysis_freq.word_frequency()
     _, word_key = analysis_freq.tf_idf_analysis()
 
     # Visualization: save word cloud plots, generate yop key words
     month = {'05': 'May', '04': 'April', '03': 'March', '02': 'February', '01': 'January', }
-    for i in range(num_div[0], num_div[1] + 1):
+    for i in range(2, 4 + 1):
         dashboard_helper.NVVisualizations.word_cloud(word_freq[str(i).zfill(2)], "data//dashboard//plots//", str(i).zfill(2))
     results = dashboard_helper.NVVisualizations.key_word_display(word_key, 4)
 
+
+    
+    
     return [html.Div(children=[
         create_wordcloud(f'{i}', month[str(i).zfill(2)], results[str(i).zfill(2)], str(i).zfill(2) + '.png')
     ], style={'display': 'inline-block', 'vertical-align': 'top', 'margin-left': '6vw', 'margin-top': '3vw'}
@@ -210,7 +206,7 @@ def update_div(num_div, file, query):
         'margin-left': '6vw',
         'margin-top': '6vw',
     }),html.Div(children=[
-        create_card('11', 'Title')
+        create_card('77', 'sentiment variability','sentiment.png')
     ], style={'display': 'inline-block', 'vertical-align': 'top', 'margin-left': '6vw', 'margin-top': '3vw',
               'margin-bottom': '6vw', })]
 
