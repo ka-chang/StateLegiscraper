@@ -535,4 +535,5 @@ def sentiment_analysis(filter_m,save_path):
     plt.plot(x3, y3)
     plt.legend(['Lowest', 'Highest', 'Ave'])  # label the line
     plt.savefig(save_path + 'sentiment.png', bbox_inches='tight', pad_inches=0)
+    plt.close()
 
