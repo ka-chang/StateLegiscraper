@@ -324,6 +324,17 @@ class NVProcess:
 
         start = time.time()
         !python3 DeepSpeech/vad_transcriber/audioTranscript_cmd.py --aggressive 1 --audio wa_house_ed_2_20_21.wav --model ./
+        #Make a list of wav files, bash command constructed as an object, each iteration of the loop just replace the argumement of the flag
+        #with the current value of the loop
+
+"""
+flags={"--aggressive": 1", "--audio": "filename", "--model: "./"}
+for f in filenames:
+  flags["--audio"] = f
+  self.ExecuteThis(command, flags)
+  
+"""
+        
         end = time.time()
         print("Total time: {:.2f}".format(end-start))
 

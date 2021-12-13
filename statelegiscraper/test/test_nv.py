@@ -21,6 +21,7 @@ import unittest
 from statelegiscraper.states.nv import Process
 from statelegiscraper.states.nv import Scrape
 
+
 # Test Data
 
 test_sen_ed = [
@@ -35,7 +36,7 @@ test_save_folder = "statelegiscraper/test/outputs/"
 
 class TestScrape(unittest.TestCase):
     """
-    Class of unittests for states.nv module, NVScrape class
+    Class of unittests for states.nv module, Scrape class
 
     nv_scrape_pdf
 
@@ -45,6 +46,18 @@ class TestScrape(unittest.TestCase):
     Make sure directories are in the proper place to save locally
 
     """
+#Contained state for unit tests, using dummy data
+
+#Contained state for unit tests, integrate data that are directly downloaded
+
+#Integration state for unit tests, using live data
+# -Can it connect to the website?
+# -Does the driver work?
+# -Can it navigate through click actions?
+# -Has the format of the website changed?
+
+    def test_nv_scrape_list(self):
+        self.assertIsInstance(test_sen_ed, list)
 
     def test_nv_scrape_pdf(self):
         """
@@ -53,15 +66,9 @@ class TestScrape(unittest.TestCase):
         """
         Scrape.nv_scrape_pdf(test_sen_ed, test_chrome_webdriver, test_save_folder)
         test_save_folder_list = os.listdir(test_save_folder)
-        #test_save_folder_filenum = len(test_save_folder_list)
-        assert isinstance(test_sen_ed, list)
-        assert len(test_save_folder_list) > 0 # check to make sure there are files in the output folder
-        self.assertTrue(True)
-        
-        # assert isinstance(test_chrome_webdriver, ) #how to check it's a valid
-        # chromedriver?
-
-
+        self.assertTrue(len(test_save_folder_list) > 0) # check to make sure there are files in the output folder
+        #self.assertGreater(len (...), 0) #https://docs.python.org/3/library/unittest.html#unittest.TestCase.assertGreater
+    
 class TestProcess(unittest.TestCase):
     """
     Class of unittests for states.nv module, NVProcess class
@@ -83,7 +90,7 @@ class TestProcess(unittest.TestCase):
         test_file_path = open(test_nv_json_path,)
         test_nv_dict = json.load(test_file_path)
         
-        assert isinstance(test_nv_dict, dict)
+        self.assertTrue isinstance(test_nv_dict, dict)
         self.assertTrue(True)
 
 
