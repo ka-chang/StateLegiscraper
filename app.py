@@ -44,7 +44,7 @@ def create_card(card_id, title,file_name):
 
 colors = {"background": "#F3F6FA", "background_div": "#DFDDDF", 'text': '#009999'}
 app.layout = html.Div(style={'backgroundColor': colors['background']}, children=[
-    html.H1('Legislature Text Scraper', style={
+    html.H1('StateLegiscraper', style={
         'textAlign': 'center',
         'color': colors['text']
     }),
