@@ -61,11 +61,11 @@ class Scrape:
         ----------
         webscrape_links : List
             List of direct link(s) to NV committee webpage.
-            see nv_weblinks.py for lists organized by chamber and committee
+            see assets/weblinks/nv_weblinks.py for lists organized by chamber and committee
         dir_chrome_webdriver : String
-            Local directory that has Chrome Webdriver.
+            Local directory that contains the appropriate Chrome Webdriver.
         dir_save : String
-            Local directory to save pdfs (need to figure out file management).
+            Local directory to save PDFs.
     
         Returns
         -------

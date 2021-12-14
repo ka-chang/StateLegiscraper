@@ -1,5 +1,7 @@
 # User Stories
 
-## Researcher
+The use case of this tool is to build and make accessible text corpora of political, social, and scholarly significance that can build greater public transparency about public policymaking and state-level politics. Researchers would be interested in this tool to gather raw data for nuanced, tailored analysis, while journalists and members of the public can engage with our text analysis dashboard to capture high-level trends in the political discourse at the state legislature.
 
-## Member of the Public
+- *Researchers*: Researcher are those who are interested in understanding topics of social and political interest, such as the policy process, political communication, policy narratives, government institutions, political advocacy, and/or policy elite behavior. Researchers can use StateLegiscraper's Scrape and Process class of functions for their states of interest to export raw data and to process the raw data into clean, workable text data. They are comfortable using Python to access the data through the statelegiscraper package, and will choose to conduct their text analysis in either Python or R. StateLegiscraper has built in functionality that exports a cleaned JSON file to the user's local drive to bring the data to other environments.
+
+- *Members of the Public*: Members of the public are interested in consuming high-level information about political narratives in state legislatures. They will choose to engage with StateLegiscraper's dashboards to understand basic text analytics that emerge from standing committee hearings, such as frequency of word use, general sentiment analysis, and word relevancy. StateLegiscraper's dashboard provides processed data and analysis from selected state legislatures about specific policy areas.
