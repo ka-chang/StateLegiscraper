@@ -150,4 +150,4 @@ dependencies:
     - widgetsnbextension==3.5.2
     - wordcloud==1.8.1
     - wsproto==1.0.0
-prefix: /Users/katherinechang/opt/miniconda3/envs/statelegiscraper
+prefix: /opt/anaconda3/envs/statelegiscraper
