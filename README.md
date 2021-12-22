@@ -2,7 +2,7 @@
 
 <img src="doc/images/readme_map/readme_map.png" height="200" width="350" align=right></img>
 
-A webscraping tool for U.S. state legislature websites that exports and processes standing committee hearing transcript data for text analysis.
+A webscraping tool for U.S. state legislature websites that exports and processes standing committee hearing data for text analysis.
 
 ## Mission
 
@@ -12,9 +12,9 @@ The mission of StateLegiscraper is to make accessible text corpora of political,
 
 In recent years, a number of controversial bills and policy proposals have emerged in state legislatures and media attention has increasingly focused on state legislative politics. But beyond recent news, public oversight of the policymaking process is an important cornerstone of democratic nations. As the current U.S. political climate has increasingly shifted national politics to the state-level, state legislatures are key policy venues to watch.
 
-However, each of the 50 state legislatures have vastly different websites and public documentation protocols. Standing committee hearings in each state are archived in a variety of formats (e.g., PDF, audio, or video), making it difficult to access data, at scale, about the work that happens during the hearing process. Committee hearings are rich sources of data that captures crucial elements of the policy process, such as interactions between policy actors, strategic use of policy narratives, issue framing, just to name a few. 
+However, each of the 50 state legislatures have vastly different websites and public documentation protocols. Standing committee hearings in each state are archived in a variety of formats (e.g., PDF, audio, or video), making it difficult to access data about the work that happens during the hearing process. Committee hearings are rich sources of data that captures crucial elements of the policy process, such as interactions between policy actors, strategic use of policy narratives, issue framing, just to name a few. 
 
-However, a systemic examination of within state and national trends of state legislature committee hearings is difficult to execute due to challenges in navigating, accessing, and processing relevant data at scale and across time. While projects such as [LegiScan](https://legiscan.com), [Civic Eagle](https://www.civiceagle.com/), and [Open States](https://openstates.org/) have APIs that provide data about bills and representatives across all 50 states, there is currently no open source option that scrapes and processes written and spoken transcripts of state legislature commitee hearings and floor speeches for research purposes and public review. StateLegiscraper is an open-source tool that fills this data access gap by making all publically available state legislature committee hearing data easily accessible regardless of its archived format. 
+Therefore, a systemic examination of within state and national trends of state legislature committee hearings is difficult to execute due to challenges in navigating, accessing, and processing relevant data at scale and across time. While projects such as [LegiScan](https://legiscan.com), [Civic Eagle](https://www.civiceagle.com/), and [Open States](https://openstates.org/) have APIs that provide data about bills and representatives across all 50 states, there is currently no open source option that scrapes and processes written and spoken transcripts of state legislature commitee hearings for research purposes and public review. StateLegiscraper is an open-source tool that fills this data access gap by making all publically available state legislature committee hearing data easily accessible regardless of its archived format. 
 
 ## Repository Structure
  ```
@@ -87,7 +87,7 @@ Example Jupyter notebooks are provided in the [examples directory](https://githu
 
 ### Dashboard
 
-StateLegiscraper also includes a series of public-facing dashboards using the scraped state legislature data. These dashboards  provide interested users about high-level narrative trends within a specific state and/or policy area. 
+StateLegiscraper also includes a series of public-facing dashboards using the scraped state legislature data. These dashboards provide interested users about high-level narrative trends within a specific state and/or policy area. 
 
 ## Use Cases
 
