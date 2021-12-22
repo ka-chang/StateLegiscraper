@@ -2,9 +2,7 @@
 
 <img src="doc/images/readme_map/readme_map.png" height="200" width="350" align=right></img>
 
-A text webscraping tool for U.S. state legislature websites, with options for speech-to-text generated transcripts and public-facing example dashboards that include basic text analysis on specific policy areas.
-
-Current coverage includes Nevada and Washington, with California in the design phase.
+A webscraping tool for U.S. state legislature websites that exports and processes standing committee hearing transcript data for text analysis.
 
 ## Mission
 
@@ -12,9 +10,11 @@ The mission of StateLegiscraper is to make accessible text corpora of political,
 
 ## Project Objective
 
-In recent years, a number of controversial bills and policy proposals have emerged in state legislatures and media attention has increasingly focus on state legislative politics. But beyond recent news, public oversight of the policymaking process is an important cornerstone of democratic nations. As the current U.S. political climate has increasingly shifted national politics to the state-level, state legislatures are key policy venues to watch.
+In recent years, a number of controversial bills and policy proposals have emerged in state legislatures and media attention has increasingly focused on state legislative politics. But beyond recent news, public oversight of the policymaking process is an important cornerstone of democratic nations. As the current U.S. political climate has increasingly shifted national politics to the state-level, state legislatures are key policy venues to watch.
 
-However, each of the 50 state legislatures have vastly different websites and public documentation protocols. Therefore, a systemic examination of national trends at the state-level is difficult to execute due to challenges in navigating, accessing, and processing relevant data. While projects such as [LegiScan](https://legiscan.com), [Civic Eagle](https://www.civiceagle.com/), and [Open States](https://openstates.org/) have APIs that provide data about bills and representatives across all 50 states, there is currently no open source option that scrapes and processes written and spoken transcripts of state legislature commitee hearings and floor speeches for research purposes and public review. 
+However, each of the 50 state legislatures have vastly different websites and public documentation protocols. Standing committee hearings in each state are archived in a variety of formats (e.g., PDF, audio, or video), making it difficult to access data, at scale, about the work that happens during the hearing process. Committee hearings are rich sources of data that captures crucial elements of the policy process, such as interactions between policy actors, strategic use of policy narratives, issue framing, just to name a few. 
+
+However, a systemic examination of within state and national trends of state legislature committee hearings is difficult to execute due to challenges in navigating, accessing, and processing relevant data at scale and across time. While projects such as [LegiScan](https://legiscan.com), [Civic Eagle](https://www.civiceagle.com/), and [Open States](https://openstates.org/) have APIs that provide data about bills and representatives across all 50 states, there is currently no open source option that scrapes and processes written and spoken transcripts of state legislature commitee hearings and floor speeches for research purposes and public review. StateLegiscraper is an open-source tool that fills this data access gap by making all publically available state legislature committee hearing data easily accessible regardless of its archived format. 
 
 ## Repository Structure
  ```
@@ -25,15 +25,14 @@ However, each of the 50 state legislatures have vastly different websites and pu
 ├── examples
 ├── statelegiscraper
 │   ├── assets
+│   ├── helpers
 │   ├── states
-│   ├── test
-│   └── dashboard_helper.py
+│   └── test
 ├── LICENSE
 ├── README.md
-├── app.py
 └── environment.yml
  ```
-The `statelegiscraper` directory includes a `states` module, unit tests in `test`, and a `dashboard_helper` function script. Data relevant to dashboard are included in `data` directory. The `examples` directory provides example Jupyter notebooks that can help new users learn the ways StateLegiscraper organize scraping and processing. A Plotly Dash dashboard can run locally through the `app.py` file (see [Dashboard](https://github.com/ka-chang/StateLegiscraper/blob/main/README.md#dashboard) section below for details.
+The `statelegiscraper` directory includes a `states` module, unit tests in `test`, and a `helpers` module that adds closed-source speech-to-text functionality with [Google Cloud](https://cloud.google.com/speech-to-text). Data relevant to dashboard are included in `data` directory. The `examples` directory provides example Jupyter notebooks that can help new users learn the ways StateLegiscraper organize scraping and processing. 
 
 ## Installation
 
@@ -44,7 +43,7 @@ StateLegiscraper is installed using the command line and is best used with a vir
 3. Change to the StateLegiscraper directory using `cd StateLegiscraper`
 4. Set up a new virtual environment with all necessary packages and their dependencies using `conda env create -f environment.yml`
 5. Activate the statelegiscraper virtual environment with `conda activate statelegiscraper`
-6. Deactivate the statelegiscraper virtual environment with `conda deactivate statelegiscraper`
+6. Deactivate the statelegiscraper virtual environment using `conda deactivate`
 
 ## Requirements
 
@@ -52,7 +51,6 @@ StateLegiscraper is installed using the command line and is best used with a vir
 
 StateLegiscraper's webscraping tool uses a Python-based web browser automation tool, [Selenium](https://www.selenium.dev). This requires a specific browser and browser driver to work properly. The package is built using Google Chrome.
 
-- Python = 3.9
 - [Google Chrome](https://www.google.com/chrome/)  
 - [Chrome Driver](https://chromedriver.chromium.org/downloads)
 
@@ -90,10 +88,6 @@ Example Jupyter notebooks are provided in the [examples directory](https://githu
 ### Dashboard
 
 StateLegiscraper also includes a series of public-facing dashboards using the scraped state legislature data. These dashboards  provide interested users about high-level narrative trends within a specific state and/or policy area. 
-
-- COVID-19 Narrative Trends in Nevada's Health and Human Services and Finance Committees (2021) 
-
-To run the dashboard, ensure you have cloned the StateLegiscraper repository and are located in the root directory. Type in `python app.py` in your terminal and the dashboards will open in a separate browser.
 
 ## Use Cases
 
