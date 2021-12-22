@@ -15,6 +15,9 @@ fig.loc[28, "COVERAGE"] = 2 #Nevada
 
 # In Design
 fig.loc[16, "COVERAGE"] = 1 #California
+fig.loc[15, "COVERAGE"] = 1 #Texas
+fig.loc[23, "COVERAGE"] = 1 #Tennessee
+
 
 map_states = fig.plot(figsize=(30, 15), column="COVERAGE", cmap="Set3", edgecolor='black')
 map_states.set_ylim([25, 50])
