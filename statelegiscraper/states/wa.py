@@ -53,151 +53,90 @@ from selenium.webdriver.common.keys import Keys
 print(selenium.getsitepackages()[0])
 
 
-class NVScrape:
+class Scrape:
     """
     """
 
-"""
+
 def wa_meeting_links():
 
   """
   """
   
 # DRIVER SETUP
-service = Service("/Users/katherinechang/Google Drive/My Drive/2021/Fall 2021/CSE583/project/chromedriver_64")
+service = Service("/Users/katherinechang/Google Drive/My Drive/State Legislatures/StateLegiscraper/statelegiscraper/assets/chromedriver/chromedriver_v96_m1")
 options = webdriver.ChromeOptions()
 driver = webdriver.Chrome(service=service, options=options)
 
-# OPEN TO TVW ARCHIVES 
-driver.get("https://www.tvw.org/archives/")
-
-# ENTER SPECIFIC COMMITTEE NAME AND PRESS ENTER 
-
-#input_search = driver.find_element(By.ID, "invintus-archives-search")
-#input_search.send_keys("House Education Committee")
-#input_search.send_keys(Keys.RETURN)
-
-# SELECT CATEGORY LEGISLATIVE
-
-#driver.find_element(By.CLASS_NAME, "selectric-invintus-archives-filter-category").click()
-#driver.find_element(By.CLASS_NAME, "selectric-hide-select").click()
-
-dropdown_category=driver.find_element(By.CLASS_NAME, "invintus-archives-filter-category")
-
-dropdown_category_select=Select(dropdown_category)
-
-dropdown_category_select.select_by_index(2)
-
-dropdown_category_select.select_by_visible_("Well Read")
-
-
-selectric_option=driver.find_element(By.CLASS_NAME, "selectric")
-print(selectric_option)
-
-selectric_option.get_attribute('innerHTML')
-
-selectric_option.get_attribute('innerHTML') 
-
-# write script
-script =  '<p class="label">Legislative</p><b class="button">▾</b>'
-  
-# generate a alert via javascript
-selectric_option.execute_script(script)
-
-
-from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver import ActionChains
-import time
-
-driver = webdriver.Chrome()
-action = ActionChains(driver)
-
-driver.get("URL")
-time.sleep(5)
-
-Para_Element = driver.find_element_by_id("myP")
-print(selectric_option.text)
-# driver.execute_script("var ele=arguments[0]; ele.innerHTML = 'Successfully Changed the Content';", Para_Element)
-
-driver.execute_script(script)
-element = driver.find_element_by_tag_name("a")
-driver.execute_script("arguments[0].setAttribute('href', 'https://www.google.com/')", element)
-driver.execute_script("var ele=arguments[0]; ele.innerHTML = 'Google';", element)
-
-Para_Element = driver.find_element_by_id("myP")
-print(Para_Element.text)
-
-
 ####
 
-options = [x for x in selectric_option.find_elements_by_tag_name("option")]
+# OPEN TO TVW ARCHIVES 
+driver.get("https://tvw.org/video-search/")
 
-for element in options:
-    print(element.get_attribute("value"))
-    
-dropdown_category.select_by_visible_text("Well Read")
-    
-options
-    
-.click()
+# CLICK CATEGORIES TO OPEN 
+driver.find_element(By.CLASS_NAME, "MuiGrid-grid-xs-12").click()
 
-print(dropdown_category_select)
+# INPUT COMMITTEE NAME
+input_search = driver.find_element(By.XPATH, "//input[contains(@class, 'MuiInputBase-input MuiInput-input')]")
+input_search.send_keys("House Education")
 
-#####
-
-
-options = driver.find_elements(By.TAG_NAME, "option")
-
-for each_option in dropdown_category:
-    #print(each_option)
-    print(each_option.get_attribute("value"))
-    
-
-for each_option in options:
-    if (each_option.get_attribute("value")=="Agencies and Boards"):
-        y=each_option
-        break
-
+# SELECT COMMITTEE NAME FROM DROP DOWN
+driver.find_element(By.XPATH, "//div[@class='MuiListItemText-root jss3 jss4 MuiListItemText-multiline' and @title='House Education']").click()
 
 # SELECT START DATE BY LEGISLATIVE SESSION
-select_date_start = driver.find_element(By.CLASS_NAME, "invintus-archives-filter-start-date")
-select_date_start.click()
+
+driver.find_element(By.XPATH, "//div[@class='react-datepicker__input-container']").click() #Calendar dropdown
+driver.find_element(By.XPATH, "//div[@class='react-datepicker__header']").click() #Year dropdown
+
+year_list = driver.find_elements(By.XPATH, "//div[@class='react-datepicker__year-option']")
+
+if parameter_year == "2020":
+    year_list[0].click() #2020
+elif selected_year == "2019":
+    year_list[1].click() #2019
+elif selected_year == "2018":
+    year_list[2].click() #2018
+elif selected_year == "2017":
+    year_list[3].click() #2017
+elif selected_year == "2016":
+    year_list[4].click() #2016
+elif selected_year == "2015":
+    year_list[5].click() #2015
+else:
+    "Incompatiable Year, Current coverage only includes 2015 to 2020"
+    
+driver.find_element(By.XPATH, "//div[@class='react-datepicker__day react-datepicker__day--001']").click() #The 1st of the month
 
 
-for option in selectMonth.find_elements_by_tag_name('option'):
-    if option.text == 'Mar':
-        option.click() 
-        break
+#MONTH
+#driver.find_elements(By.XPATH, "//div[@class='react-datepicker__month-container']")
+#driver.find_element(By.XPATH, "//div[@class='react-datepicker__month-container']").click()
+#driver.find_element(By.XPATH, "//div[@class='react-datepicker__navigation react-datepicker__navigation--previous']")
 
-
-for option in selectYear.find_elements_by_tag_name('option'):
-    if option.text == '2017':
-        option.click() 
-        break 
-
-days = driver.find_elements_by_xpath('//a[@class="ui-state-default"]')
-days[4].click()
-
+#JAVASCRIPT OPTION (DOESN'T STICK)
+#start_date = driver.find_element(By.XPATH, "//input[@class='css-13hc3dd']")
+#driver.execute_script("arguments[0].value = arguments[1]", start_date, "08/05/2018") #input date, but doesn't stick
 
 # SELECT END DATE BY LEGISLATIVE SESSION
-select_date_end = driver.find_element(By.CLASS_NAME, "invintus-archives-filter-end-date")
-select_date_end.click()
 
-# INPUT COMMITTEE MEETING
+#end_date = driver.find_element(By.XPATH, "//input[@class='css-13hc3dd']")
+#driver.execute_script("arguments[0].value = arguments[1]", start_date, "08/05/2020") #input date, but doesn't stick
 
+# PRESS SUBMIT 
+driver.find_element(By.XPATH, "//button[@class='filter__form-submit css-1l4j2co']").click()
+
+####
 
 # SAVE LINKS FOR MULTIPLE PAGES
 
 url = driver.page_source
 
-# FOR EACH PAGE SEARCH FOR A HREF TAG TO CREATE A LIST OF WEBLINKS
+# FOR EACH PAGE SEARCH FOR A HREF TAG TO CREATE A LIST OF WEBLINKS, AUDIO ENDS WITH .MP3
 
 match = re.search(r'href=[\'"]?([^\'" >]+)', lines)
 
 for i in lines:
     hit = meeting_regex.findall(l)
-
 
 REGEX_PATTERN = r".*(\?eventID\=).*"
 lines = url.split()
@@ -219,7 +158,7 @@ for filename in all_files:
 
 driver.close()
 
-"""
+
 
     def wa_scrape_audio():
     
@@ -280,7 +219,7 @@ driver.close()
 
 #### WORK IN PROGRESS
 
-class NVProcess:
+class Process:
     """
     """
     def wa_speech_to_text(weblinks_mp3):
