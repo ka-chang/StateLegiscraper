@@ -90,8 +90,9 @@ class Scrape:
 
             service = Service(dir_chrome_webdriver)
             options = webdriver.ChromeOptions()
-            # Chrome runs headless, comment out this line if you'd like to see
-            # the action
+            # Chrome runs headless, 
+            # comment out "options.add_argument('headless')"
+            # to see the action
             options.add_argument('headless')
             driver = webdriver.Chrome(service=service, options=options)
 

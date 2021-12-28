@@ -4,7 +4,7 @@ WA module for scraping and processing text from https://leg.wa.gov
 # Status
 
 Current Coverage (In Active Development):
-    [ ] Committee Hearings (Audio Links) (2015 - 2020)
+    [X] Committee Hearings (Audio Links) (2015 - 2020)
 
 Planned Coverage:
     [ ] Committee Hearings (Video Links) (2000 - 2014)
@@ -12,17 +12,17 @@ Planned Coverage:
 
 # WA Work Flow
 
-CLASS WAScrape
+CLASS Scrape
 
-    - wa_scrape_meeting_links by desired committee and legislative session. 
-    Function searches TVW archives for links to each individual committee meeting for that leg session
+    - wa_scrape_links by desired committee and legislative session. 
+    Function filters TVW archives by function parameters
+    for links to each individual committee meeting for that calendar year
     
-    - wa_scrape_audio by wa_meeting_links output (or custom output in weblinks form)
-    Function visits each link individually and gather weblinks for each meeting hearing audio by mp3 link on page
-    Pulls input by wa_scrape_audio for the weblinks by desired committee and leg session
-    Rename the file names by committee name and date (YYYYMMDD) (e.g. wa_education_20200305.mp3)
+    - wa_scrape_audio by wa_scrape_links output 
+    Function downloads audio files to local drive
+    Renames the file names by committee name and date (YYYYMMDD) (e.g. wa_education_20200305.mp3)
 
-CLASS WAProcess
+CLASS Process
 
     - wa_speech_to_text
     Function gives the user option to convert audio file to a text transcript through DeepSpeech
@@ -34,152 +34,285 @@ CLASS WAProcess
 
 """
 
+from datetime import datetime
 import os
-from pathlib import Path
 import sys
 import re
 import time
 
-import urllib.request
-from urllib.parse import urljoin
-
+from bs4 import BeautifulSoup
 import selenium
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
-#from selenium.webdriver.support.ui import Select
-from selenium.webdriver.common.keys import Keys
+
+#TESTING 
+
+dir_chrome_webdriver = "/Users/katherinechang/Google Drive/My Drive/State Legislatures/StateLegiscraper/statelegiscraper/assets/chromedriver/chromedriver_v96_m1"
 
 class Scrape:
     """
+    Scrape functions for Washington State Legislature website
+    Current coverage includes committee hearing audio links 
     """
 
-
-def wa_meeting_links():
-
-  """
-  """
-  
-# DRIVER SETUP
-service = Service("/Users/katherinechang/Google Drive/My Drive/State Legislatures/StateLegiscraper/statelegiscraper/assets/chromedriver/chromedriver_v96_m1")
-options = webdriver.ChromeOptions()
-driver = webdriver.Chrome(service=service, options=options)
-
-####
-
-# OPEN TO TVW ARCHIVES 
-driver.get("https://tvw.org/video-search/")
-time.sleep(5)
-
-# CLICK CATEGORIES TO OPEN 
-driver.find_element(By.CLASS_NAME, "MuiGrid-grid-xs-12").click()
-
-# INPUT COMMITTEE NAME
-input_search = driver.find_element(By.XPATH, "//input[contains(@class, 'MuiInputBase-input MuiInput-input')]")
-input_search.send_keys("House Education")
-
-# SELECT COMMITTEE NAME FROM DROP DOWN
-driver.find_element(By.XPATH, "//div[@class='MuiListItemText-root jss3 jss4 MuiListItemText-multiline' and @title='House Education']").click()
-
-# SELECT START DATE BY LEGISLATIVE SESSION
-
-""" Javascript Option, more efficient/accurate solution but needs debugging
-#OPTION 1: Can change date value for input, but flex resets it to default/current date when submitted 
-date_elements = driver.find_elements(By.XPATH, "//input[@class='css-13hc3dd']")
-start_date = date_elements[0]
-end_date = date_elements[1]
-driver.execute_script("arguments[0].value = 12/27/2015", start_date)
-
-#OPTION 2: Can change entire input-container innerHTML, but site crashes when submitted
-date_elements = driver.find_elements(By.XPATH, "//div[@class='react-datepicker__input-container']")
-start_html = date_elements[0].get_attribute("innerHTML")
-start_date = date_elements[0]
-end_html = date_elements[1].get_attribute("innerHTML")
-end_date = date_elements[1]
-
-start_script = '<div class="css-1s0fs6f"><input class="css-13hc3dd" value="12/27/2015"></div>'
-
-driver.execute_script("arguments[0].innerHTML = arguments[1]", start_date, start_script)
-"""
-
-"""
-Interactive Option, select 
-"""
-driver.find_element(By.XPATH, "//div[@class='react-datepicker__input-container']").click() #Calendar dropdown
-driver.find_element(By.XPATH, "//div[@class='react-datepicker__header']").click() #Year dropdown
-
-year_list = driver.find_elements(By.XPATH, "//div[@class='react-datepicker__year-option']")
-
-year_length = len(year_list) #last index value is downarrow
-year_list[year_length-2].click()    
-driver.find_element(By.XPATH, "//div[@class='react-datepicker__day react-datepicker__day--001']").click() #The 1st of the month
-
-date_elements = driver.find_elements(By.XPATH, "//input[@class='css-13hc3dd']")
-start_date = date_elements[0].get_attribute("value")
-end_date = date_elements[1].get_attribute("value")
-
-print(start_date)
-print(end_date)
-
-# PRESS SUBMIT 
-driver.find_element(By.XPATH, "//button[@class='filter__form-submit css-1l4j2co']").click()
-
-####
-
-# SAVE HTML FOR MULTIPLE PAGES
-
-url_html = []
-
-url_html.append(driver.page_source) #CURRENT PAGE, PAGE 1
-
-#url_link = driver.find_element(By.XPATH, "//div[@class='pagination__Pagination-sc-gi8rtp-0 efVChy pagination']")
-#url_pages_innerhtml = url_link.get_attribute("innerHTML")
-url_page_numbers= driver.find_elements(By.XPATH, "//button[@class='pagination__Button-sc-gi8rtp-2 hFycqx pagination__button css-18u3ks8']")
-url_page_length = len(url_page_numbers)
-
-for page_num in range(url_page_length): #length + 1, since it doesn't include first page (currently loaded page)
-    url_page_loop= driver.find_elements(By.XPATH, "//button[@class='pagination__Button-sc-gi8rtp-2 hFycqx pagination__button css-18u3ks8']")
-    url_page_loop[page_num].click() 
-    time.sleep(5)
-    url_html.append(driver.page_source) 
-    url_page_home= driver.find_elements(By.XPATH, "//button[@class='pagination__Button-sc-gi8rtp-2 hFycqx pagination__button css-18u3ks8']")
-    url_page_home[0].click()
-    time.sleep(5)
-
-####
-
-# FOR EACH PAGE SEARCH FOR A HREF TAG TO CREATE A LIST OF WEBLINKS, AUDIO ENDS WITH .MP3
-
-match = re.search(r'href=[\'"]?([^\'" >]+)', lines)
-
-for i in lines:
-    hit = meeting_regex.findall(l)
-
-REGEX_PATTERN = r".*(\?eventID\=).*"
-lines = url.split()
-meeting_regex = re.compile(REGEX_PATTERN)
-all_files = []
-
-for l in lines:
-    hit = meeting_regex.findall(l)
-    if hit:
-        print(hit)
-        #all_files.extend(hit)
+    def wa_scrape_links(param_committee, param_year, dir_chrome_webdriver, dir_save):
+        """
+        Webscrape function for Washington State Legislature Website for 2015-2020 sessions 
         
-for filename in all_files:
-    print(filename)
+        Parameters
+        ----------
+        param_committee : String
+            Standing committee hearing name (see list with "xxx").
+        param_year : String
+            Calendar year (Current coverage limited to 2015-2021).
+        dir_chrome_webdriver : String
+            Local directory that contains the appropriate Chrome Webdriver.
+        dir_save : String
+            Local directory to save JSON with audio links.
+    
+        Returns
+        -------
+        A JSON file saved locally with selected committee and year audio files
+    
+        """
+        
+        if not isinstance(param_committee, string):
+            raise ValueError("Committee name must be a string")
+        else:
+            pass
 
+        if not isinstance(param_year, string):
+            raise ValueError("Year selection must be a string")
+        else:
+            pass
 
-# GO THROUGH EACH PAGE AND GATHER THE LINKS TO EACH MEETING
+        if not os.path.exists(dir_chrome_webdriver):
+            raise ValueError("Chrome Webdriver not found")
+        else:
+            pass
 
-driver.close()
+        if not os.path.exists(dir_save):
+            raise ValueError("Save directory not found")
+        else:
+            pass
+  
+        # DRIVER SETUP
+        service = Service(dir_chrome_webdriver)
+        options = webdriver.ChromeOptions()
+        # Chrome runs headless, 
+        # comment out "options.add_argument('headless')"
+        # to see the action
+        # options.add_argument('headless')
+        driver = webdriver.Chrome(service=service, options=options)
+        
+        ####
+        
+        # OPEN TO TVW ARCHIVES 
+        driver.get("https://tvw.org/video-search/")
+        time.sleep(5)
+        
+        # CLICK CATEGORIES TO OPEN 
+        driver.find_element(By.CLASS_NAME, "MuiGrid-grid-xs-12").click()
+        
+        # INPUT COMMITTEE NAME
+        input_search = driver.find_element(By.XPATH, "//input[contains(@class, 'MuiInputBase-input MuiInput-input')]")
+        input_search.send_keys("House Education")
+        
+        # SELECT COMMITTEE NAME FROM DROP DOWN
+        driver.find_element(By.XPATH, "//div[@class='MuiListItemText-root jss3 jss4 MuiListItemText-multiline' and @title='House Education']").click()
+        
+        # SELECT START DATE BY LEGISLATIVE SESSION
+        
+        """ Javascript Option, more efficient/accurate solution but needs debugging, issue with flex object
+        #OPTION 1: Can change date value for input, but flex resets it to default/current date when submitted 
+        date_elements = driver.find_elements(By.XPATH, "//input[@class='css-13hc3dd']")
+        start_date = date_elements[0]
+        end_date = date_elements[1]
+        driver.execute_script("arguments[0].value = 12/27/2015", start_date)
+        
+        #OPTION 2: Can change entire input-container innerHTML, but site crashes when submitted
+        date_elements = driver.find_elements(By.XPATH, "//div[@class='react-datepicker__input-container']")
+        start_html = date_elements[0].get_attribute("innerHTML")
+        start_date = date_elements[0]
+        end_html = date_elements[1].get_attribute("innerHTML")
+        end_date = date_elements[1]
+        
+        start_script = '<div class="css-1s0fs6f"><input class="css-13hc3dd" value="12/27/2015"></div>'
+        
+        driver.execute_script("arguments[0].innerHTML = arguments[1]", start_date, start_script)
+        """
+        
+        """ Interactive Option, simulate clicks on the search form. Works but clunky.
+        """
+        
+        # SELECT START AND END MONTH (JANUARY - DECEMBER)
+        # Date is reliant on current date, start month set to January 1st of cal year
+        driver.find_element(By.XPATH, "//div[@class='react-datepicker__input-container']").click() #Calendar dropdown
+        
+        date_elements = driver.find_elements(By.XPATH, "//input[@class='css-13hc3dd']")
+        start_date = date_elements[0].get_attribute("value")
+        end_date = date_elements[1].get_attribute("value")
+        start_datetime = datetime.strptime(start_date, '%m/%d/%Y').date()
+        end_datetime = datetime.strptime(end_date, '%m/%d/%Y').date()
+        
+        def _loop_month():
+            driver.find_element(By.XPATH, "//div[@class='react-datepicker__day react-datepicker__day--001']").click() 
+            date_elements = driver.find_elements(By.XPATH, "//input[@class='css-13hc3dd']")
+            loop_date = date_elements[0].get_attribute("value")
+            loop_datetime = datetime.strptime(loop_date, '%m/%d/%Y').date()
+            assert loop_datetime.month == 1, "Month set to January"
+        
+        previous_month_click = "//button[@class='react-datepicker__navigation react-datepicker__navigation--previous']"
+        
+        if start_datetime.month == 12:
+            for i in range(0,11):
+                driver.find_element(By.XPATH, previous_month_click).click()
+                i+=1
+            _loop_month()
+        elif start_datetime.month == 11:
+            for i in range(0,10):
+                driver.find_element(By.XPATH, previous_month_click).click()
+                i+=1
+            _loop_month()
+        elif start_datetime.month == 10:
+            for i in range(0,9):
+                driver.find_element(By.XPATH, previous_month_click).click()
+                i+=1
+            _loop_month()
+        elif start_datetime.month == 9:
+            for i in range(0,8):
+                driver.find_element(By.XPATH, previous_month_click).click()
+                i+=1
+            _loop_month()
+        elif start_datetime.month == 8:
+            for i in range(0,7):
+                driver.find_element(By.XPATH, previous_month_click).click()
+                i+=1
+            _loop_month()
+        elif start_datetime.month == 7:
+            for i in range(0,6):
+                driver.find_element(By.XPATH, previous_month_click).click()
+                i+=1
+            _loop_month()
+        elif start_datetime.month == 6:
+            for i in range(0,5):
+                driver.find_element(By.XPATH, previous_month_click).click()
+                i+=1
+            _loop_month()
+        elif start_datetime.month == 5:
+            for i in range(0,4):
+                driver.find_element(By.XPATH, previous_month_click).click()
+                i+=1
+            _loop_month()
+        elif start_datetime.month == 4:
+            for i in range(0,3):
+                driver.find_element(By.XPATH, previous_month_click).click()
+                i+=1
+            _loop_month()
+        elif start_datetime.month == 3:
+            for i in range(0,2):
+                driver.find_element(By.XPATH, previous_month_click).click()
+                i+=1
+            _loop_month()
+        elif start_datetime.month == 2:
+            for i in range(0,1):
+                driver.find_element(By.XPATH, previous_month_click).click()
+                i+=1
+            _loop_month()
+        elif start_datetime.month == 1:
+            _loop_month()
+        else:
+            print("Invalid Date")
+            
+        # SELECT START YEAR (ESTABLISHED BY PARAM_YEAR)
+        
+        date_elements = driver.find_elements(By.XPATH, "//input[@class='css-13hc3dd']")
+        year_date = date_elements[0].get_attribute("value")
+        year_datetime = datetime.strptime(year_date, '%m/%d/%Y').date()
+        
+        driver.find_element(By.XPATH, "//div[@class='react-datepicker__input-container']").click()
+        driver.find_element(By.XPATH, "//div[@class='react-datepicker__header']").click() #Year dropdown
+        
+        year_list = driver.find_elements(By.XPATH, "//div[@class='react-datepicker__year-option']")
+        
+        if parameter_year == "2021":
+            year_list[0].click() #2021
+        elif selected_year == "2020":
+            pass
+        elif selected_year == "2019":
+            year_list[1].click() #2019
+        elif selected_year == "2018":
+            year_list[2].click() #2018
+        elif selected_year == "2017":
+            year_list[3].click() #2017
+        elif selected_year == "2016":
+            year_list[4].click() #2016
+        elif selected_year == "2015":
+            year_list[5].click() #2015
+        else:
+            "Invalid Year. Current coverage limited to 2015 to 2021"
+        
+        driver.find_element(By.XPATH, "//div[@class='react-datepicker__day react-datepicker__day--001']").click() 
+        
+        driver.find_element(By.XPATH, "//div[@class='react-datepicker__day react-datepicker__day--002']").click()
+        #Sometimes the 1st lands on a weekend, in that case we need to pick the 2nd or 3rd of the month
+        
+        # PRESS SUBMIT 
+        driver.find_element(By.XPATH, "//button[@class='filter__form-submit css-1l4j2co']").click()
+        
+        ####
+        
+        # SAVE HTML FOR MULTIPLE PAGES
+        
+        url_html = []
+        
+        url_html.append(driver.page_source) #CURRENT PAGE, PAGE 1
+        
+        #url_link = driver.find_element(By.XPATH, "//div[@class='pagination__Pagination-sc-gi8rtp-0 efVChy pagination']")
+        #url_pages_innerhtml = url_link.get_attribute("innerHTML")
+        url_page_numbers= driver.find_elements(By.XPATH, "//button[@class='pagination__Button-sc-gi8rtp-2 hFycqx pagination__button css-18u3ks8']")
+        url_page_length = len(url_page_numbers)
+        
+        for page_num in range(url_page_length): #length + 1, since it doesn't include first page (currently loaded page)
+            url_page_loop= driver.find_elements(By.XPATH, "//button[@class='pagination__Button-sc-gi8rtp-2 hFycqx pagination__button css-18u3ks8']")
+            url_page_loop[page_num].click() 
+            time.sleep(5)
+            url_html.append(driver.page_source) 
+            url_page_home= driver.find_elements(By.XPATH, "//button[@class='pagination__Button-sc-gi8rtp-2 hFycqx pagination__button css-18u3ks8']")
+            url_page_home[0].click()
+            time.sleep(5)
+        
+        assert len(url_html) > 0, "Check that there's content in the html list"
+        
+        driver.close()
+        
+        ####
+        
+        # FOR EACH PAGE SOURCE SEARCH FOR A HREF TAG ENDING IN .MP3 TO CREATE A LIST OF AUDIO LINKS, 
+        
+        committee_links=[]
+        committee_dates=[]
+        
+        for url_page in range(len(url_html)):
+            soup_html = BeautifulSoup(url_html[url_page])
+            links_all = soup_html.findAll('a', href=True)
+            links_mp3 = [l for l in links_all if l['href'].endswith('.mp3')]
+            
+            for l in links_mp3: 
+                committee_links.append(l['href'])
+        
+            soup_divs_dates = soup_html.find_all("div", class_="table__Cell-sc-z0zx9b-7 table__Date-sc-z0zx9b-9 fZbwqH idBpML")
+            for d in range(len(soup_divs_dates)):
+                committee_dates.append(soup_divs_dates[d].get_text())
 
-
+        assert len(committee_links) == len(committee_dates), \
+            "Ensure both links and dates match before joining"
 
     def wa_scrape_audio():
     
       """
-        Webscrape function for Washington State Legislature Website for 2016-2020 sessions 
+        Webscrape function for Washington State Legislature Website for 2015-2020 sessions 
         
         Parameters
         ----------
@@ -196,33 +329,7 @@ driver.close()
         All audio files found on the webscrape_links, either as an object or saved on local dir_save.
         
         """
-    
-        service = Service("/Users/katherinechang/Google Drive/My Drive/2021/Fall 2021/CSE583/project/chromedriver_m1")
-        options = webdriver.ChromeOptions()
-        driver = webdriver.Chrome(service=service, options=options)
         
-        #Loop here to visit each link for the webscrape_links object
-        
-        driver.get("https://www.tvw.org/watch/?eventID=2021021259") 
-        driver.find_element(By.ID, 'content').click()
-        
-        url = driver.page_source
-        REGEX_PATTERN = r'https.*audio.*\.mp3'
-        lines = url.split()
-        meeting_regex = re.compile(REGEX_PATTERN)
-        mp3_files = []
-        
-        for l in lines:
-            hit = meeting_regex.findall(l)
-            if hit:
-                mp3_files.extend(hit)
-                
-        for filename in mp3_files:
-            print(filename)
-        
-        driver.close()
-        
-        #Option to download if true
         if download:
         
             folder_location = dir_save
