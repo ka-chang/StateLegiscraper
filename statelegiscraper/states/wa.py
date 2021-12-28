@@ -47,11 +47,8 @@ import selenium
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.support.ui import Select
+#from selenium.webdriver.support.ui import Select
 from selenium.webdriver.common.keys import Keys
-
-print(selenium.getsitepackages()[0])
-
 
 class Scrape:
     """
@@ -72,6 +69,7 @@ driver = webdriver.Chrome(service=service, options=options)
 
 # OPEN TO TVW ARCHIVES 
 driver.get("https://tvw.org/video-search/")
+time.sleep(5)
 
 # CLICK CATEGORIES TO OPEN 
 driver.find_element(By.CLASS_NAME, "MuiGrid-grid-xs-12").click()
@@ -85,51 +83,70 @@ driver.find_element(By.XPATH, "//div[@class='MuiListItemText-root jss3 jss4 MuiL
 
 # SELECT START DATE BY LEGISLATIVE SESSION
 
+""" Javascript Option, more efficient/accurate solution but needs debugging
+#OPTION 1: Can change date value for input, but flex resets it to default/current date when submitted 
+date_elements = driver.find_elements(By.XPATH, "//input[@class='css-13hc3dd']")
+start_date = date_elements[0]
+end_date = date_elements[1]
+driver.execute_script("arguments[0].value = 12/27/2015", start_date)
+
+#OPTION 2: Can change entire input-container innerHTML, but site crashes when submitted
+date_elements = driver.find_elements(By.XPATH, "//div[@class='react-datepicker__input-container']")
+start_html = date_elements[0].get_attribute("innerHTML")
+start_date = date_elements[0]
+end_html = date_elements[1].get_attribute("innerHTML")
+end_date = date_elements[1]
+
+start_script = '<div class="css-1s0fs6f"><input class="css-13hc3dd" value="12/27/2015"></div>'
+
+driver.execute_script("arguments[0].innerHTML = arguments[1]", start_date, start_script)
+"""
+
+"""
+Interactive Option, select 
+"""
 driver.find_element(By.XPATH, "//div[@class='react-datepicker__input-container']").click() #Calendar dropdown
 driver.find_element(By.XPATH, "//div[@class='react-datepicker__header']").click() #Year dropdown
 
 year_list = driver.find_elements(By.XPATH, "//div[@class='react-datepicker__year-option']")
 
-if parameter_year == "2020":
-    year_list[0].click() #2020
-elif selected_year == "2019":
-    year_list[1].click() #2019
-elif selected_year == "2018":
-    year_list[2].click() #2018
-elif selected_year == "2017":
-    year_list[3].click() #2017
-elif selected_year == "2016":
-    year_list[4].click() #2016
-elif selected_year == "2015":
-    year_list[5].click() #2015
-else:
-    "Incompatiable Year, Current coverage only includes 2015 to 2020"
-    
+year_length = len(year_list) #last index value is downarrow
+year_list[year_length-2].click()    
 driver.find_element(By.XPATH, "//div[@class='react-datepicker__day react-datepicker__day--001']").click() #The 1st of the month
 
+date_elements = driver.find_elements(By.XPATH, "//input[@class='css-13hc3dd']")
+start_date = date_elements[0].get_attribute("value")
+end_date = date_elements[1].get_attribute("value")
 
-#MONTH
-#driver.find_elements(By.XPATH, "//div[@class='react-datepicker__month-container']")
-#driver.find_element(By.XPATH, "//div[@class='react-datepicker__month-container']").click()
-#driver.find_element(By.XPATH, "//div[@class='react-datepicker__navigation react-datepicker__navigation--previous']")
-
-#JAVASCRIPT OPTION (DOESN'T STICK)
-#start_date = driver.find_element(By.XPATH, "//input[@class='css-13hc3dd']")
-#driver.execute_script("arguments[0].value = arguments[1]", start_date, "08/05/2018") #input date, but doesn't stick
-
-# SELECT END DATE BY LEGISLATIVE SESSION
-
-#end_date = driver.find_element(By.XPATH, "//input[@class='css-13hc3dd']")
-#driver.execute_script("arguments[0].value = arguments[1]", start_date, "08/05/2020") #input date, but doesn't stick
+print(start_date)
+print(end_date)
 
 # PRESS SUBMIT 
 driver.find_element(By.XPATH, "//button[@class='filter__form-submit css-1l4j2co']").click()
 
 ####
 
-# SAVE LINKS FOR MULTIPLE PAGES
+# SAVE HTML FOR MULTIPLE PAGES
 
-url = driver.page_source
+url_html = []
+
+url_html.append(driver.page_source) #CURRENT PAGE, PAGE 1
+
+#url_link = driver.find_element(By.XPATH, "//div[@class='pagination__Pagination-sc-gi8rtp-0 efVChy pagination']")
+#url_pages_innerhtml = url_link.get_attribute("innerHTML")
+url_page_numbers= driver.find_elements(By.XPATH, "//button[@class='pagination__Button-sc-gi8rtp-2 hFycqx pagination__button css-18u3ks8']")
+url_page_length = len(url_page_numbers)
+
+for page_num in range(url_page_length): #length + 1, since it doesn't include first page (currently loaded page)
+    url_page_loop= driver.find_elements(By.XPATH, "//button[@class='pagination__Button-sc-gi8rtp-2 hFycqx pagination__button css-18u3ks8']")
+    url_page_loop[page_num].click() 
+    time.sleep(5)
+    url_html.append(driver.page_source) 
+    url_page_home= driver.find_elements(By.XPATH, "//button[@class='pagination__Button-sc-gi8rtp-2 hFycqx pagination__button css-18u3ks8']")
+    url_page_home[0].click()
+    time.sleep(5)
+
+####
 
 # FOR EACH PAGE SEARCH FOR A HREF TAG TO CREATE A LIST OF WEBLINKS, AUDIO ENDS WITH .MP3
 
@@ -152,7 +169,6 @@ for l in lines:
 for filename in all_files:
     print(filename)
 
-<a href="/watch/?eventID=2021111051">
 
 # GO THROUGH EACH PAGE AND GATHER THE LINKS TO EACH MEETING
 
