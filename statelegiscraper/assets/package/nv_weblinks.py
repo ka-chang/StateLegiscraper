@@ -1,5 +1,7 @@
-"""Weblinks for Nevada committee meeting pages, organized by chamber and committee name 
-for regular sessions from 2011-2021"""
+"""
+Weblinks for Nevada committee meeting pages, organized by chamber and committee name 
+for regular sessions from 2011-2021
+"""
 
 #ASSEMBLY
 

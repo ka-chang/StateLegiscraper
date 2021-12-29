@@ -26,7 +26,6 @@ K NOTES (11/8):
 
 import json
 import os
-#import pathlib
 import unittest
 
 from statelegiscraper.states.nv import Process
