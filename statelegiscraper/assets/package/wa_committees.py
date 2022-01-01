@@ -3,7 +3,7 @@ Standing committee names for Washington State Legislature,
 organized by chamber and committee name from 2015-2021
 """
 
-house_committee =[
+house_standing =[
     "House Appropriations",
     "House Capital Budget",
     "House Children, Youth & Families​",
@@ -26,7 +26,7 @@ house_committee =[
     "House Transportation"
     ]
 
-senate_committee=[
+senate_standing=[
     "Senate Agriculture, Water, Natural Resources & Parks",
     "Senate Behavioral Health Subcommittee",
     "Senate Business, Financial Services & Trade",

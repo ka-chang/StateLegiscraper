@@ -1,9 +1,9 @@
 """
 NV module for scraping and processing text from https://leg.state.nv.us
 
-# Status
+# Status, as of January 1, 2022
 
-Current Coverage:
+Current Coverage (Stable):
     [X] Committee Hearings (PDF Transcript Links) (2011 - 2021)
 
 Planned Coverage:

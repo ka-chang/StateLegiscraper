@@ -1,7 +1,7 @@
 """
 WA module for scraping and processing text from https://leg.wa.gov 
 
-# Status
+# Status, as of January 1, 2022
 
 Current Coverage (In Active Development):
     [X] Committee Hearings (Audio Links) (2015 - 2020)
@@ -50,7 +50,7 @@ from selenium.webdriver.chrome.service import Service
 
 dir_chrome_webdriver = "/Users/katherinechang/Google Drive/My Drive/State Legislatures/StateLegiscraper/statelegiscraper/assets/chromedriver/chromedriver_v96_m1"
 
-param_committee = "Senate Labor, Commerce & Tribal Affairs"
+param_committee = "House Education"
 
 param_year = "2017"
 
@@ -83,12 +83,12 @@ class Scrape:
     
         """
         
-        if not isinstance(param_committee, string):
+        if not isinstance(param_committee, str):
             raise ValueError("Committee name must be a string")
         else:
             pass
 
-        if not isinstance(param_year, string):
+        if not isinstance(param_year, str):
             raise ValueError("Year selection must be a string")
         else:
             pass
@@ -102,8 +102,10 @@ class Scrape:
             raise ValueError("Save directory not found")
         else:
             pass
-  
-        # DRIVER SETUP
+
+        ############
+        
+        #--> DRIVER SETUP
         service = Service(dir_chrome_webdriver)
         options = webdriver.ChromeOptions()
         # Chrome runs headless, 
@@ -112,13 +114,15 @@ class Scrape:
         # options.add_argument('headless')
         driver = webdriver.Chrome(service=service, options=options)
         
-        ####
+        ############
         
-        # OPEN TO TVW ARCHIVES 
+        #--> OPEN TO TVW ARCHIVES 
         driver.get("https://tvw.org/video-search/")
         time.sleep(5)
         
-        # CLICK CATEGORIES TO OPEN 
+        ############
+        
+        #--> CLICK CATEGORIES TO OPEN 
         driver.find_element(By.CLASS_NAME, "MuiGrid-grid-xs-12").click()
         
         # INPUT COMMITTEE NAME
@@ -133,13 +137,26 @@ class Scrape:
         separator = ""     
         committee_script = separator.join(committee_script_list)
         
-   
         # SELECT COMMITTEE NAME FROM DROP DOWN
         driver.find_element(By.XPATH, committee_script).click()
         
-        # SELECT START DATE BY LEGISLATIVE SESSION (JANUARY)
+        # CHECK THAT COMMITTEE NAME FROM DROP DOWN IS SELECTED
+        committee_name_assert = driver.find_element(By.XPATH, "//span[@class='MuiChip-label']").get_attribute("innerHTML")
+        
+        #Ensure amp is the same
+        if re.search("&amp;", committee_name_assert):
+            committee_name_assert = committee_name_assert.replace("&amp;", "&")
+        else:
+            pass
+            
+        assert committee_name_assert == param_committee, "Committee Name Not Selected"
+
+        ############
+        
+        #--> SELECT START DATE BY LEGISLATIVE SESSION (JANUARY 1-3, WHICHEVER FALLS ON WEEKDAY)
         # Date is reliant on current date, start month set to January 1st of cal year
         calendar_dropdown = driver.find_elements(By.XPATH, "//div[@class='react-datepicker__input-container']")        
+
         calendar_dropdown[0].click() 
         
         date_elements = driver.find_elements(By.XPATH, "//input[@class='css-13hc3dd']")
@@ -153,140 +170,180 @@ class Scrape:
                 return
             for i in range(0, upper_range):
                 driver.find_element(By.XPATH, previous_month_click).click()
-                i+=1 
 
-        def _loop_start():
-           try:
-               driver.find_element(By.XPATH, "//div[@class='react-datepicker__day react-datepicker__day--001']").click() 
-           except:
-               try:
-                   driver.find_element(By.XPATH, "//div[@class='react-datepicker__day react-datepicker__day--002']").click()
-               except:
-                   driver.find_element(By.XPATH, "//div[@class='react-datepicker__day react-datepicker__day--003']").click()
-               return
-           return
-           date_elements = driver.find_elements(By.XPATH, "//input[@class='css-13hc3dd']")
-           loop_date = date_elements[0].get_attribute("value")
-           loop_datetime = datetime.strptime(loop_date, '%m/%d/%Y').date()
-           assert loop_datetime.month == 1, "Month set to January"
-        
+        def _loop_first():
+            try:
+                driver.find_element(By.XPATH, "//div[@class='react-datepicker__day react-datepicker__day--001']").click() 
+            except:
+                try:
+                    driver.find_element(By.XPATH, "//div[@class='react-datepicker__day react-datepicker__day--002']").click()
+                except:
+                    try:
+                        driver.find_element(By.XPATH, "//div[@class='react-datepicker__day react-datepicker__day--003']").click()
+                    except:
+                        pass
+     
         _loop_january(driver, start_datetime.month-1)
-        _loop_start()
-            
-        # SELECT START YEAR (ESTABLISHED BY PARAM_YEAR)
+        _loop_first()
+        
+        if driver.find_element(By.XPATH, "//div[@class='react-datepicker__header']"):
+            calendar_dropdown[0].click() 
+        else:
+            pass
+        
+        param_dates = driver.find_elements(By.XPATH, "//input[@class='css-13hc3dd']")
+        param_start_date = param_dates[0].get_attribute("value")        
+        param_start_datetime = datetime.strptime(param_start_date, '%m/%d/%Y').date()
+        assert (param_start_datetime.month == 1), "Start Date not set to January"
+        assert (param_start_datetime.day <=3), "Start Date not set between January 1-3"
+        
+        #--> SELECT START YEAR (ESTABLISHED BY PARAM_YEAR)
+        
+        #check if dropdown is down
+        
+        try:
+            calendar_dropdown[0].click() 
+        except:
+            calendar_dropdown = driver.find_elements(By.XPATH, "//div[@class='react-datepicker__input-container']")   
+            calendar_dropdown[0].click() 
         
         date_elements = driver.find_elements(By.XPATH, "//input[@class='css-13hc3dd']")
         year_date = date_elements[0].get_attribute("value")
-        year_datetime = datetime.strptime(year_date, '%m/%d/%Y').date()
+        year_datetime = datetime.strptime(year_date, '%m/%d/%Y').date()   
         
-        driver.find_element(By.XPATH, "//div[@class='react-datepicker__input-container']").click()
-        driver.find_element(By.XPATH, "//div[@class='react-datepicker__header']").click() #Year dropdown
+        driver.find_element(By.XPATH, "//div[@class='react-datepicker__header']").click() 
         
+        #Year dropdown is dynamic according to date, code clicks according to present values  
+        #BUG: Needs to scroll to previous so year appears on the dropdown to click. Q: How to click on A CLASS
+        year_list = driver.find_elements(By.XPATH, "//div[@class='react-datepicker__year-option']")
+        year_list_values=[]
+        
+        for y in range(len(year_list)):
+            year_list_values.append(year_list[y].get_attribute("innerHTML"))
+        
+        def _year_select(param_year):
+            #Click according to the param_year
+            if param_year == "2021":
+                param_y = year_list_values.index("2021")
+                year_list[param_y].click()
+            elif param_year == "2020":
+                param_y = year_list_values.index("2020")
+                year_list[param_y].click()
+            elif param_year == "2019":
+                param_y = year_list_values.index("2019")
+                year_list[param_y].click()
+            elif param_year == "2018":
+                param_y = year_list_values.index("2018")
+                year_list[param_y].click()
+            elif param_year == "2017":
+                param_y = year_list_values.index("2017")
+                year_list[param_y].click()
+            elif param_year == "2016":
+                param_y = year_list_values.index("2016")
+                year_list[param_y].click()
+            elif param_year == "2015":
+                param_y = year_list_values.index("2015")
+                year_list[param_y].click()
+            else:
+                "Invalid Year. Current coverage limited to 2015 to 2021"
+                
+        if (year_datetime.year != int(param_year)):
+            _year_select(param_year)
+            _loop_first()
+        else:
+            pass
+        
+        param_dates = driver.find_elements(By.XPATH, "//input[@class='css-13hc3dd']")
+        param_start_date = param_dates[0].get_attribute("value")        
+        param_start_datetime = datetime.strptime(param_start_date, '%m/%d/%Y').date()
+        assert (param_start_datetime.year == int(param_year)), "Start Date not set to param_year"
+        assert (param_start_datetime.day <=3), "Start Date not set between January 1-3"
+        
+        ############
+        
+        #--> SELECT END DATE BY LEGISLATIVE SESSION (DECEMBER)
+        
+        calendar_dropdown[1].click() 
+        date_elements = driver.find_elements(By.XPATH, "//input[@class='css-13hc3dd']")
+        end_date = date_elements[1].get_attribute("value")        
+        end_datetime = datetime.strptime(end_date, '%m/%d/%Y').date()
+        
+        next_month_click = "//button[@class='react-datepicker__navigation react-datepicker__navigation--next']"
+      
+        def _loop_december(driver, upper_range: int) -> ():
+            if upper_range == 12:
+                 return
+            for i in range(0, (12-upper_range)):
+                driver.find_element(By.XPATH, next_month_click).click()
+                
+        def _loop_end():
+            try:
+                driver.find_element(By.XPATH, "//div[@class='react-datepicker__day react-datepicker__day--031']").click() 
+            except:
+                try:
+                    driver.find_element(By.XPATH, "//div[@class='react-datepicker__day react-datepicker__day--030']").click()
+                except:
+                    try:
+                        driver.find_element(By.XPATH, "//div[@class='react-datepicker__day react-datepicker__day--029']").click()
+                    except:
+                        pass
+   
+        _loop_december(driver, end_datetime.month)
+        _loop_end()
+        
+        param_dates = driver.find_elements(By.XPATH, "//input[@class='css-13hc3dd']")
+        param_end_date = param_dates[1].get_attribute("value")        
+        param_end_datetime = datetime.strptime(param_end_date, '%m/%d/%Y').date()
+        assert (param_end_datetime.month == int(12)), "End Date not set to December"
+        assert (param_end_datetime.day >=29), "End Date not set between December 29-31"
+            
+        #--> SELECT END YEAR (ESTABLISHED BY PARAM_YEAR)
+        
+        calendar_dropdown[1].click() 
+
+        date_elements = driver.find_elements(By.XPATH, "//input[@class='css-13hc3dd']")
+        end_year_date = date_elements[1].get_attribute("value")
+        end_year_datetime = datetime.strptime(year_date, '%m/%d/%Y').date()
+        
+        driver.find_element(By.XPATH, "//div[@class='react-datepicker__header']").click() 
+       
+        #Year dropdown is dynamic according to date, code clicks according to present values  
         year_list = driver.find_elements(By.XPATH, "//div[@class='react-datepicker__year-option']")
         
-        if param_year == "2021":
-            year_list[0].click() #2021
-        elif param_year == "2020":
-            pass
-        elif param_year == "2019":
-            year_list[1].click() #2019
-        elif param_year == "2018":
-            year_list[2].click() #2018
-        elif param_year == "2017":
-            year_list[3].click() #2017
-        elif param_year == "2016":
-            year_list[4].click() #2016
-        elif param_year == "2015":
-            year_list[5].click() #2015
+        year_list_values=[]
+       
+        for y in range(len(year_list)):
+            year_list_values.append(year_list[y].get_attribute("innerHTML"))
+        
+        #Click previous until year appears on year_list
+        #while not param_year in year_list:
+        #    driver.find_element(By.XPATH, "//a[@class='react-datepicker__navigation react-datepicker__navigation--years react-datepicker__navigation--years-previous']").click()
+        #    year_list = driver.find_elements(By.XPATH, "//div[@class='react-datepicker__year-option']")
+        #    year_list_values=[]
+        #    for y in range(len(year_list)):
+        #        year_list_values.append(year_list[y].get_attribute("innerHTML"))
+        
+        if (end_year_datetime.year != int(param_year)):
+             _year_select(param_year)
+             _loop_end()
         else:
-            "Invalid Year. Current coverage limited to 2015 to 2021"
+             calendar_dropdown[1].click()
         
-        #Sometimes the 1st lands on a weekend, in that case we need to pick the 2nd or 3rd of the month
-        try:
-            driver.find_element(By.XPATH, "//div[@class='react-datepicker__day react-datepicker__day--001']").click() 
-        except:
-            try:
-                driver.find_element(By.XPATH, "//div[@class='react-datepicker__day react-datepicker__day--002']").click()
-            except:
-                driver.find_element(By.XPATH, "//div[@class='react-datepicker__day react-datepicker__day--003']").click()
-            return
-        return  
+        param_dates = driver.find_elements(By.XPATH, "//input[@class='css-13hc3dd']")
+        param_end_date = param_dates[1].get_attribute("value")        
+        param_end_datetime = datetime.strptime(param_end_date, '%m/%d/%Y').date()
+        assert (param_end_datetime.year == int(param_year)), "End Date not set to param_year"
+        assert (param_end_datetime.day >=29), "End Date not set between December 29-31"
 
-       # SELECT END DATE BY LEGISLATIVE SESSION (DECEMBER)     
-       calendar_dropdown[1].click() 
-       date_elements = driver.find_elements(By.XPATH, "//input[@class='css-13hc3dd']")
-       end_date = date_elements[1].get_attribute("value")        
-       end_datetime = datetime.strptime(end_date, '%m/%d/%Y').date()
-       
-       next_month_click = "//button[@class='react-datepicker__navigation react-datepicker__navigation--next']"
-      
-       def _loop_december(driver, upper_range: int) -> ():
-           if upper_range == 12:
-                return
-           for i in range(0, (12-upper_range)):
-               driver.find_element(By.XPATH, next_month_click).click()
-               
-       def _loop_end():
-           try:
-               driver.find_element(By.XPATH, "//div[@class='react-datepicker__day react-datepicker__day--001']").click() 
-           except:
-               try:
-                   driver.find_element(By.XPATH, "//div[@class='react-datepicker__day react-datepicker__day--002']").click()
-               except:
-                   driver.find_element(By.XPATH, "//div[@class='react-datepicker__day react-datepicker__day--003']").click()
-               return
-           return
-           date_elements = driver.find_elements(By.XPATH, "//input[@class='css-13hc3dd']")
-           loop_date = date_elements[0].get_attribute("value")
-           loop_datetime = datetime.strptime(loop_date, '%m/%d/%Y').date()
-           assert loop_datetime.month == 12, "Month set to December"
-       
-       _loop_december(driver, end_datetime.month)
-       _loop_end()
-           
-       # SELECT END YEAR (ESTABLISHED BY PARAM_YEAR)
-       
-       date_elements = driver.find_elements(By.XPATH, "//input[@class='css-13hc3dd']")
-       end_year_date = date_elements[1].get_attribute("value")
-       end_year_datetime = datetime.strptime(year_date, '%m/%d/%Y').date()
-       
-       driver.find_element(By.XPATH, "//div[@class='react-datepicker__header']").click() #Year dropdown
-       
-       year_list = driver.find_elements(By.XPATH, "//div[@class='react-datepicker__year-option']")
-       
-       if param_year == "2021":
-           year_list[0].click() #2021
-       elif param_year == "2020":
-           pass
-       elif param_year == "2019":
-           year_list[1].click() #2019
-       elif param_year == "2018":
-           year_list[2].click() #2018
-       elif param_year == "2017":
-           year_list[3].click() #2017
-       elif param_year == "2016":
-           year_list[4].click() #2016
-       elif param_year == "2015":
-           year_list[5].click() #2015
-       else:
-           "Invalid Year. Current coverage limited to 2015 to 2021"
-       
-       #Sometimes the 1st lands on a weekend, in that case we need to pick the 2nd or 3rd of the month
-       try:
-           driver.find_element(By.XPATH, "//div[@class='react-datepicker__day react-datepicker__day--001']").click() 
-       except:
-           try:
-               driver.find_element(By.XPATH, "//div[@class='react-datepicker__day react-datepicker__day--002']").click()
-           except:
-               driver.find_element(By.XPATH, "//div[@class='react-datepicker__day react-datepicker__day--003']").click()
-            
-        # PRESS SUBMIT 
+        ############
+             
+        #--> PRESS SUBMIT 
         driver.find_element(By.XPATH, "//button[@class='filter__form-submit css-1l4j2co']").click()
-        
-        ####
-        
+         
+        ############
+         
         # SAVE HTML FOR MULTIPLE PAGES
-        
+ 
         url_html = []
         
         url_html.append(driver.page_source) #CURRENT PAGE, PAGE 1
@@ -316,23 +373,16 @@ class Scrape:
         
         # FOR EACH PAGE SOURCE SEARCH FOR A HREF TAG ENDING IN .MP3 TO CREATE A LIST OF AUDIO LINKS, 
         
+        soup_html = BeautifulSoup(url_html[0])
+
+        div_table = soup_html.find_all('div', {'class': re.compile(r'table__Metadata-.*')})
+
         committee_links=[]
         committee_dates=[]
         
         for url_page in range(len(url_html)):
             soup_html = BeautifulSoup(url_html[url_page])
-            links_all = soup_html.findAll('a', href=True)
-            links_mp3 = [l for l in links_all if l['href'].endswith('.mp3')]
-            
-            for l in links_mp3: 
-                committee_links.append(l['href'])
-        
-            soup_divs_dates = soup_html.find_all("div", class_="table__Cell-sc-z0zx9b-7 table__Date-sc-z0zx9b-9 fZbwqH idBpML")
-            for d in range(len(soup_divs_dates)):
-                committee_dates.append(soup_divs_dates[d].get_text())
-
-        assert len(committee_links) == len(committee_dates), \
-            "Ensure both links and dates match before joining"
+            div_table = soup_html.find_all('div', {'class': re.compile(r'table__Metadata-.*')})
 
     def wa_scrape_audio():
     
