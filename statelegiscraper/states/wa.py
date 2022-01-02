@@ -34,6 +34,7 @@ CLASS Process
 
 """
 
+from collections import OrderedDict
 from datetime import datetime
 import os
 import sys
@@ -46,11 +47,15 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 
+from statelegiscraper.assets.package import wa_committees
+
 #TESTING 
 
 dir_chrome_webdriver = "/Users/katherinechang/Google Drive/My Drive/State Legislatures/StateLegiscraper/statelegiscraper/assets/chromedriver/chromedriver_v96_m1"
 
 param_committee = "House Education"
+
+wa_committees.house_standing
 
 param_year = "2017"
 
@@ -150,6 +155,7 @@ class Scrape:
             pass
             
         assert committee_name_assert == param_committee, "Committee Name Not Selected"
+        time.sleep(5)
 
         ############
         
@@ -186,7 +192,7 @@ class Scrape:
         _loop_january(driver, start_datetime.month-1)
         _loop_first()
         
-        if driver.find_element(By.XPATH, "//div[@class='react-datepicker__header']"):
+        if driver.find_element(By.XPATH, "//div[@class='react-datepicker__header']"): #Check if true
             calendar_dropdown[0].click() 
         else:
             pass
@@ -196,6 +202,7 @@ class Scrape:
         param_start_datetime = datetime.strptime(param_start_date, '%m/%d/%Y').date()
         assert (param_start_datetime.month == 1), "Start Date not set to January"
         assert (param_start_datetime.day <=3), "Start Date not set between January 1-3"
+        time.sleep(5)
         
         #--> SELECT START YEAR (ESTABLISHED BY PARAM_YEAR)
         
@@ -214,13 +221,31 @@ class Scrape:
         driver.find_element(By.XPATH, "//div[@class='react-datepicker__header']").click() 
         
         #Year dropdown is dynamic according to date, code clicks according to present values  
-        #BUG: Needs to scroll to previous so year appears on the dropdown to click. Q: How to click on A CLASS
+        check_yr = driver.find_elements(By.XPATH, "//div[@class='react-datepicker__year-option']")
+        check_yr_values=[]
+        
+        for y in range(len(check_yr)):
+            check_yr_values.append(check_yr[y].get_attribute("innerHTML"))
+            
+        #Click previous until year appears on year_list
+        #if not param_year in year_list:
+        while not param_year in year_list:
+            driver.find_element(By.XPATH, "//a[@class='react-datepicker__navigation react-datepicker__navigation--years react-datepicker__navigation--years-previous']").click()
+            while_year = driver.find_elements(By.XPATH, "//div[@class='react-datepicker__year-option']")
+            while_year_values=[]
+            for y in range(len(while_year)):
+                while_year_values.append(while_year[y].get_attribute("innerHTML"))
+            if param_year in while_year_values:
+                break
+            
         year_list = driver.find_elements(By.XPATH, "//div[@class='react-datepicker__year-option']")
         year_list_values=[]
         
         for y in range(len(year_list)):
             year_list_values.append(year_list[y].get_attribute("innerHTML"))
-        
+            
+        assert param_year in year_list_values, "param_year not in year dropdown list"
+            
         def _year_select(param_year):
             #Click according to the param_year
             if param_year == "2021":
@@ -258,6 +283,7 @@ class Scrape:
         param_start_datetime = datetime.strptime(param_start_date, '%m/%d/%Y').date()
         assert (param_start_datetime.year == int(param_year)), "Start Date not set to param_year"
         assert (param_start_datetime.day <=3), "Start Date not set between January 1-3"
+        time.sleep(5)
         
         ############
         
@@ -296,32 +322,47 @@ class Scrape:
         param_end_datetime = datetime.strptime(param_end_date, '%m/%d/%Y').date()
         assert (param_end_datetime.month == int(12)), "End Date not set to December"
         assert (param_end_datetime.day >=29), "End Date not set between December 29-31"
-            
+        time.sleep(5)
+        
         #--> SELECT END YEAR (ESTABLISHED BY PARAM_YEAR)
         
-        calendar_dropdown[1].click() 
-
+        try:
+            calendar_dropdown[1].click() 
+        except:
+            calendar_dropdown = driver.find_elements(By.XPATH, "//div[@class='react-datepicker__input-container']")   
+            calendar_dropdown[1].click() 
+        
         date_elements = driver.find_elements(By.XPATH, "//input[@class='css-13hc3dd']")
-        end_year_date = date_elements[1].get_attribute("value")
-        end_year_datetime = datetime.strptime(year_date, '%m/%d/%Y').date()
+        year_date = date_elements[1].get_attribute("value")
+        year_datetime = datetime.strptime(year_date, '%m/%d/%Y').date()   
         
         driver.find_element(By.XPATH, "//div[@class='react-datepicker__header']").click() 
-       
-        #Year dropdown is dynamic according to date, code clicks according to present values  
-        year_list = driver.find_elements(By.XPATH, "//div[@class='react-datepicker__year-option']")
         
+        #Year dropdown is dynamic according to date, code clicks according to present values  
+        check_yr = driver.find_elements(By.XPATH, "//div[@class='react-datepicker__year-option']")
+        check_yr_values=[]
+        
+        for y in range(len(check_yr)):
+            check_yr_values.append(check_yr[y].get_attribute("innerHTML"))
+            
+        #Click previous until year appears on year_list
+        #if not param_year in year_list:
+        while not param_year in check_yr_values:
+            driver.find_element(By.XPATH, "//a[@class='react-datepicker__navigation react-datepicker__navigation--years react-datepicker__navigation--years-previous']").click()
+            while_year = driver.find_elements(By.XPATH, "//div[@class='react-datepicker__year-option']")
+            while_year_values=[]
+            for y in range(len(while_year)):
+                while_year_values.append(while_year[y].get_attribute("innerHTML"))
+            if param_year in while_year_values:
+                break
+            
+        year_list = driver.find_elements(By.XPATH, "//div[@class='react-datepicker__year-option']")
         year_list_values=[]
-       
+        
         for y in range(len(year_list)):
             year_list_values.append(year_list[y].get_attribute("innerHTML"))
-        
-        #Click previous until year appears on year_list
-        #while not param_year in year_list:
-        #    driver.find_element(By.XPATH, "//a[@class='react-datepicker__navigation react-datepicker__navigation--years react-datepicker__navigation--years-previous']").click()
-        #    year_list = driver.find_elements(By.XPATH, "//div[@class='react-datepicker__year-option']")
-        #    year_list_values=[]
-        #    for y in range(len(year_list)):
-        #        year_list_values.append(year_list[y].get_attribute("innerHTML"))
+            
+        assert param_year in year_list_values, "param_year not in year dropdown list"
         
         if (end_year_datetime.year != int(param_year)):
              _year_select(param_year)
@@ -345,44 +386,99 @@ class Scrape:
         # SAVE HTML FOR MULTIPLE PAGES
  
         url_html = []
-        
         url_html.append(driver.page_source) #CURRENT PAGE, PAGE 1
         
-        #url_link = driver.find_element(By.XPATH, "//div[@class='pagination__Pagination-sc-gi8rtp-0 efVChy pagination']")
-        #url_pages_innerhtml = url_link.get_attribute("innerHTML")
-        url_page_numbers= driver.find_elements(By.XPATH, "//button[@class='pagination__Button-sc-gi8rtp-2 hFycqx pagination__button css-18u3ks8']")
-        url_page_length = len(url_page_numbers)
+        soup_html_home = BeautifulSoup(url_html[0])
         
-        if url_page_length > 1:
-            for page_num in range(url_page_length): #length + 1, since it doesn't include first page (currently loaded page)
-                url_page_loop= driver.find_elements(By.XPATH, "//button[@class='pagination__Button-sc-gi8rtp-2 hFycqx pagination__button css-18u3ks8']")
-                url_page_loop[page_num].click() 
-                time.sleep(5)
-                url_html.append(driver.page_source) 
-                url_page_home= driver.find_elements(By.XPATH, "//button[@class='pagination__Button-sc-gi8rtp-2 hFycqx pagination__button css-18u3ks8']")
-                url_page_home[0].click()
-                time.sleep(5)
-        else:
+        no_results_assert=soup_html_home.find('div', {'class': re.compile(r'fallback-states__NoResults.*')})
+        
+        if no_results_assert is None: #There are results
             pass
+        else: #There are no results
+            if no_results_assert.text == str("No Events Available"): #Check if there's the string
+                url_html=["No results found"]
+                print("Search results yielded no hearing meetings")
+                #driver.close() #If no results breaks script, but otherwise run
+                #break #Probably need to print why break so user knows what's up
+            else:
+                pass
+            
+        page_num = soup_html_home.find_all('button', {'class': re.compile(r'pagination__Button-.*')})
         
+        if page_num==[]:
+            pass
+        else:
+            for s in range(len(page_num)):
+                for span_tag in page_num[s].findAll('span'): 
+                    #better to find button tag, this finds span and deletes
+                    span_tag.replace_with('')
+            
+            page_button_tag=[]
+        
+            for b in range(len(page_num)):
+                page_tag = re.findall((r'(?<=<button class=").*?(?=" type="button"></button>)'), str(page_num[b]))
+                page_button_tag.append(page_tag)
+                
+            page_button_tag_dup = [i[0] for i in page_button_tag]
+            
+            page_button_tag = list(OrderedDict.fromkeys(page_button_tag_dup))
+                    
+            if len(page_button_tag) > 1:
+                for p in range(len(page_button_tag)-1):
+                    button_script_list = ["//button[@class='",
+                                          page_button_tag[p+1],
+                                          "']"]
+                    separator = ""     
+                    button_script = separator.join(button_script_list)
+                    time.sleep(5)
+                    driver.find_element(By.XPATH, button_script).click()
+                    time.sleep(5)
+                    url_html.append(driver.page_source)
+                    try:
+                        home_script_list = ["//button[@class='",
+                                              page_button_tag[0],
+                                              "']"]
+                        separator = ""     
+                        home_script = separator.join(button_script_list)
+                        time.sleep(5)
+                        driver.find_element(By.XPATH, home_script).click()
+                    except:
+                        break
+                           
         assert len(url_html) > 0, "Check that there's content in the html list"
         
         driver.close()
+        
+        #If there are no results, need to identify and break before moving next
+        #Check other pages beyond first in url_html to identify if there are no events available
+        #If so, then delete the identified element with "No Events Available" on that page
         
         ####
         
         # FOR EACH PAGE SOURCE SEARCH FOR A HREF TAG ENDING IN .MP3 TO CREATE A LIST OF AUDIO LINKS, 
         
-        soup_html = BeautifulSoup(url_html[0])
+        committee_links={}
+        div_table=[]
+        k=0
 
-        div_table = soup_html.find_all('div', {'class': re.compile(r'table__Metadata-.*')})
-
-        committee_links=[]
-        committee_dates=[]
-        
         for url_page in range(len(url_html)):
             soup_html = BeautifulSoup(url_html[url_page])
-            div_table = soup_html.find_all('div', {'class': re.compile(r'table__Metadata-.*')})
+            table = soup_html.find_all('div', {'class': re.compile(r'table__Metadata-.*')})
+            for t in range(len(table)):
+                committee_links[k]=(table[t])
+                k+=1
+                
+        #Search to make sure committee name matches
+        #and then extract datetime format and set as key
+        #and then mp3
+        
+        committee_links[1].get_text(separator="______") 
+        
+        links_all = committee_links[1].findAll('a', href=True)
+        links_mp3 = [l for l in links_all if l['href'].endswith('.mp3')]
+        
+        # SAVE committee_links AS JSON LOCALLY TO DIR_SAVE
+
 
     def wa_scrape_audio():
     

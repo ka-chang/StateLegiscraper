@@ -13,7 +13,8 @@ house_standing =[
     "House Community & Economic Development​",
     "House Consumer Protection & Business",
     "House Education",
-    "House Environment & Energy",
+    "House Environment",
+    "House Environment & Energy", #no results in 2017
     "House Finance",
     "House Health Care & Wellness",
     "House Housing, Human Services & Veterans​",
