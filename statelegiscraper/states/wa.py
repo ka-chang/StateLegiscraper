@@ -531,6 +531,7 @@ class Scrape:
         
         with open(final_dir_file, 'w') as final:
             json.dump(committee_date_links, final, sort_keys=True, indent=4)
+            
     
     def wa_scrape_audio(audio_json, dir_audio_save):
         """
