@@ -40,24 +40,30 @@ import os
 import sys
 import re
 import time
+import urllib
 
 from bs4 import BeautifulSoup
 import selenium
 from selenium import webdriver
+from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 
 from statelegiscraper.assets.package import wa_committees
 
+"""
 #TESTING 
 
 dir_chrome_webdriver = "/Users/katherinechang/Google Drive/My Drive/State Legislatures/StateLegiscraper/statelegiscraper/assets/chromedriver/chromedriver_v96_m1"
 
-param_committee = "House Education"
+param_committee = "Senate Early Learning & K-12 Education"
 
-wa_committees.house_standing
+wa_committees.senate_standing
 
-param_year = "2017"
+param_year = "2015"
+
+dir_save = "/Users/katherinechang/Google Drive/My Drive/State Legislatures/"
+"""
 
 class Scrape:
     """
@@ -155,7 +161,6 @@ class Scrape:
             pass
             
         assert committee_name_assert == param_committee, "Committee Name Not Selected"
-        time.sleep(5)
 
         ############
         
@@ -192,17 +197,17 @@ class Scrape:
         _loop_january(driver, start_datetime.month-1)
         _loop_first()
         
-        if driver.find_element(By.XPATH, "//div[@class='react-datepicker__header']"): #Check if true
-            calendar_dropdown[0].click() 
-        else:
-            pass
+        try:
+            driver.find_element(By.XPATH, "//div[@class='react-datepicker__header']").is_enabled()
+            calendar_dropdown[0].click()  
+        except NoSuchElementException:
+            pass            
         
         param_dates = driver.find_elements(By.XPATH, "//input[@class='css-13hc3dd']")
         param_start_date = param_dates[0].get_attribute("value")        
         param_start_datetime = datetime.strptime(param_start_date, '%m/%d/%Y').date()
         assert (param_start_datetime.month == 1), "Start Date not set to January"
         assert (param_start_datetime.day <=3), "Start Date not set between January 1-3"
-        time.sleep(5)
         
         #--> SELECT START YEAR (ESTABLISHED BY PARAM_YEAR)
         
@@ -213,6 +218,8 @@ class Scrape:
         except:
             calendar_dropdown = driver.find_elements(By.XPATH, "//div[@class='react-datepicker__input-container']")   
             calendar_dropdown[0].click() 
+        
+        assert driver.find_element(By.XPATH, "//div[@class='react-datepicker__header']").is_enabled(), "Calendar dropdown not available"
         
         date_elements = driver.find_elements(By.XPATH, "//input[@class='css-13hc3dd']")
         year_date = date_elements[0].get_attribute("value")
@@ -229,7 +236,7 @@ class Scrape:
             
         #Click previous until year appears on year_list
         #if not param_year in year_list:
-        while not param_year in year_list:
+        while not param_year in check_yr_values:
             driver.find_element(By.XPATH, "//a[@class='react-datepicker__navigation react-datepicker__navigation--years react-datepicker__navigation--years-previous']").click()
             while_year = driver.find_elements(By.XPATH, "//div[@class='react-datepicker__year-option']")
             while_year_values=[]
@@ -283,7 +290,7 @@ class Scrape:
         param_start_datetime = datetime.strptime(param_start_date, '%m/%d/%Y').date()
         assert (param_start_datetime.year == int(param_year)), "Start Date not set to param_year"
         assert (param_start_datetime.day <=3), "Start Date not set between January 1-3"
-        time.sleep(5)
+        time.sleep(2)
         
         ############
         
@@ -316,13 +323,18 @@ class Scrape:
    
         _loop_december(driver, end_datetime.month)
         _loop_end()
+
+        try:
+            driver.find_element(By.XPATH, "//div[@class='react-datepicker__header']").is_enabled()
+            calendar_dropdown[0].click()  
+        except NoSuchElementException:
+            pass  
         
         param_dates = driver.find_elements(By.XPATH, "//input[@class='css-13hc3dd']")
         param_end_date = param_dates[1].get_attribute("value")        
         param_end_datetime = datetime.strptime(param_end_date, '%m/%d/%Y').date()
         assert (param_end_datetime.month == int(12)), "End Date not set to December"
         assert (param_end_datetime.day >=29), "End Date not set between December 29-31"
-        time.sleep(5)
         
         #--> SELECT END YEAR (ESTABLISHED BY PARAM_YEAR)
         
@@ -331,10 +343,12 @@ class Scrape:
         except:
             calendar_dropdown = driver.find_elements(By.XPATH, "//div[@class='react-datepicker__input-container']")   
             calendar_dropdown[1].click() 
+            
+        assert driver.find_element(By.XPATH, "//div[@class='react-datepicker__header']").is_enabled(), "Calendar dropdown not available"
         
         date_elements = driver.find_elements(By.XPATH, "//input[@class='css-13hc3dd']")
-        year_date = date_elements[1].get_attribute("value")
-        year_datetime = datetime.strptime(year_date, '%m/%d/%Y').date()   
+        end_year_date = date_elements[1].get_attribute("value")
+        end_year_datetime = datetime.strptime(year_date, '%m/%d/%Y').date()   
         
         driver.find_element(By.XPATH, "//div[@class='react-datepicker__header']").click() 
         
@@ -346,7 +360,6 @@ class Scrape:
             check_yr_values.append(check_yr[y].get_attribute("innerHTML"))
             
         #Click previous until year appears on year_list
-        #if not param_year in year_list:
         while not param_year in check_yr_values:
             driver.find_element(By.XPATH, "//a[@class='react-datepicker__navigation react-datepicker__navigation--years react-datepicker__navigation--years-previous']").click()
             while_year = driver.find_elements(By.XPATH, "//div[@class='react-datepicker__year-option']")
@@ -425,15 +438,20 @@ class Scrape:
                     
             if len(page_button_tag) > 1:
                 for p in range(len(page_button_tag)-1):
+                    print(p+1)
                     button_script_list = ["//button[@class='",
                                           page_button_tag[p+1],
                                           "']"]
                     separator = ""     
                     button_script = separator.join(button_script_list)
                     time.sleep(5)
-                    driver.find_element(By.XPATH, button_script).click()
+                    button_click = driver.find_element(By.XPATH, button_script)
+                    driver.execute_script("arguments[0].click();", button_click)
                     time.sleep(5)
                     url_html.append(driver.page_source)
+                    home_click = driver.find_element(By.XPATH, "//button[@class='filter__form-submit css-1l4j2co']")
+                    driver.execute_script("arguments[0].click();", home_click)
+                    """
                     try:
                         home_script_list = ["//button[@class='",
                                               page_button_tag[0],
@@ -443,8 +461,9 @@ class Scrape:
                         time.sleep(5)
                         driver.find_element(By.XPATH, home_script).click()
                     except:
-                        break
-                           
+                        driver.find_element(By.XPATH, "//button[@class='filter__form-submit css-1l4j2co']").click()
+                    """
+                    
         assert len(url_html) > 0, "Check that there's content in the html list"
         
         driver.close()
@@ -457,59 +476,96 @@ class Scrape:
         
         # FOR EACH PAGE SOURCE SEARCH FOR A HREF TAG ENDING IN .MP3 TO CREATE A LIST OF AUDIO LINKS, 
         
-        committee_links={}
-        div_table=[]
+        committee_html={}
         k=0
 
         for url_page in range(len(url_html)):
             soup_html = BeautifulSoup(url_html[url_page])
             table = soup_html.find_all('div', {'class': re.compile(r'table__Metadata-.*')})
             for t in range(len(table)):
-                committee_links[k]=(table[t])
+                committee_html[k]=(table[t])
                 k+=1
                 
+        #TBD: Delete any entries that aren't the same committee name as the rest
         #Search to make sure committee name matches
-        #and then extract datetime format and set as key
+        
+        #Extract datetime format and set as key
         #and then mp3
+        committee_datetime=[]
+        committee_audio_link=[]
+        for key in range(len(committee_html)):
         
-        committee_links[1].get_text(separator="______") 
+            key_datetime=committee_html[key].get_text(separator="____")
+            key_datetime_found = re.findall(r'(\d+/\d+/\d+)',key_datetime)
+            
+            key_datetime_found[0]
+            
+            committee_datetime_found =  datetime.strptime(key_datetime_found[0], '%m/%d/%Y').date()
+            committee_datetime.append(str(committee_datetime_found)) #Should keep as datetime? Currently string
+
+            links_all = committee_html[key].findAll('a', href=True)
+            links_mp3 = [l for l in links_all if l['href'].endswith('.mp3')]
+            
+            for l in links_mp3: 
+                committee_audio_link.append(l['href'])
+                
+        assert len(committee_datetime)==len(committee_audio_link), \
+            "Dates and audio links aren't the same size"
         
-        links_all = committee_links[1].findAll('a', href=True)
-        links_mp3 = [l for l in links_all if l['href'].endswith('.mp3')]
+        committee_date_links={}
+        
+        if len(committee_datetime)==len(committee_audio_link):
+            committee_date_links = dict(zip(committee_datetime, committee_audio_link))
+        else:
+            raise IndexError("Dictionary keys and values don't match")
         
         # SAVE committee_links AS JSON LOCALLY TO DIR_SAVE
-
-
-    def wa_scrape_audio():
-    
-      """
-        Webscrape function for Washington State Legislature Website for 2015-2020 sessions 
         
+        committee_name = re.sub(r'[^A-Za-z0-9 ]+', '', param_committee)
+        
+        committee_name = committee_name.strip().replace(" ", "")
+        
+        final_file = ("wa_" + str(committee_name.lower()) + "_" + str(param_year)+ ".json")
+        
+        final_dir_file = os.path.join(dir_save, final_file)
+        
+        with open(final_dir_file, 'w') as final:
+            json.dump(committee_date_links, final, sort_keys=True, indent=4)
+    
+    def wa_scrape_audio(audio_json, dir_audio_save):
+        """
+
         Parameters
         ----------
-        webscrape_links : LIST
-            List of direct link(s) to WA committee video pages.
-            Can also use list generated by wa_committee_links() 
-        dir_chrome_webdriver : STRING
-            Local directory that has Chrome Webdriver.
-        dir_save : STRING
-            Local directory to save audio files
-    
+        audio_json : JSON
+            JSON file name, include full local path.
+        dir_audio_save : String
+            Local directory to download audio files in.
+            Best if the directory is empty
+
         Returns
         -------
-        All audio files found on the webscrape_links, either as an object or saved on local dir_save.
-        
+        Audio files linked in audio_json.
+
         """
         
-        if download:
+        file_path = open(audio_json,)
+        audio_links = json.load(file_path)
         
-            folder_location = dir_save
+        import urllib
+        
+        loop_url = str(list(audio_links.values())[0])
+        loop_file_name = str(list(audio_links)[0]) + ".mp3"
+        loop_file_dir = os.path.join(dir_audio_save, loop_file_name)
+        
+        urllib.request.urlretrieve(req, loop_file_dir)
+        
             
-            for link in mp3_files:
-                filename = os.path.join(folder_location,"_".join(link.split('/')[4:]))
-                urllib.request.urlretrieve(link, filename)
         
-        return(mp3_files)
+        
+audio_json="/Volumes/GoogleDrive/My Drive/State Legislatures/wa_houseeducation_2015.json"
+
+dir_audio_save="/Volumes/GoogleDrive/My Drive/State Legislatures/tests/"
 
 #### WORK IN PROGRESS
 
