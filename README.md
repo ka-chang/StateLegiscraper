@@ -2,7 +2,7 @@
 
 <img src="doc/images/readme_map/readme_map.png" height="200" width="350" align=right></img>
 
-A webscraping tool for U.S. state legislature websites that exports and processes committee hearing data for text analysis.
+A webscraping tool for U.S. state legislature websites that exports and processes committee hearing data for text analysis. <a href="https://github.com/ka-chang/StateLegiscraper/blob/main/doc/coverage.md">State coverage is outlined here</a>.
 
 ## Mission
 
