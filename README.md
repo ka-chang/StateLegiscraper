@@ -1,4 +1,4 @@
-# <img src= "doc/images/statelegiscraper_logo.png" height="60"></img> StateLegiscraper 
+# <img src= "doc/images/logo.png" height="60"></img> StateLegiscraper 
 
 <img src="doc/images/readme_map/readme_map.png" height="200" width="350" align=right></img>
 
