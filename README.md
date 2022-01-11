@@ -32,7 +32,7 @@ StateLegiscraper is an open-source tool that fills this data access gap by makin
 ├── README.md
 └── environment.yml
  ```
-The `statelegiscraper` directory includes a `states` module, unit tests in `test`, and a `helpers` module that adds closed-source speech-to-text functionality with [Google Cloud](https://cloud.google.com/speech-to-text). Data relevant to dashboard are included in `data` directory. The `examples` directory provides example Jupyter notebooks that can help new users learn the ways StateLegiscraper organize scraping and processing. 
+The `statelegiscraper` directory includes a `states` module, unit tests in `test`, and a `helpers` module that adds closed-source speech-to-text functionality with [Google Cloud](https://cloud.google.com/speech-to-text). Data relevant to dashboards are included in `data` directory. The `examples` directory provides example Jupyter notebooks that can help new users learn the ways StateLegiscraper organize scraping and processing. 
 
 ## Installation
 
@@ -101,7 +101,7 @@ The ambition of StateLegiscraper is to one day cover and maintain all 50 state l
 
 ## Bug Report
 
-If you would like to report a bug or issue , please submit a detailed report at [this link](https://github.com/ka-chang/StateLegiscraper/issues/new).
+Achieving broad and stable coverage for StateLegiscraper is a priority. States in active development are expected to have bugs, but bug reports for states identified as stable on the [state coverage documentation](https://github.com/ka-chang/StateLegiscraper/blob/main/doc/coverage.md) would be much appreciated. If you would like to report a bug or issue, please submit a detailed report at [this link](https://github.com/ka-chang/StateLegiscraper/issues/new).
  
 ## Contributions
 
